@@ -62,6 +62,11 @@ public class MasterClientServerThrift extends ThriftServer implements
     return delegate.getLogicalNodes(physNode);
   }
 
+  
+  public Map<String, Integer> getChokeMap(String physNode) throws TException {
+    return delegate.getChokeMap(physNode);
+  }
+  
   public ThriftFlumeConfigData getConfig(String host) throws TException {
     return configToThrift(delegate.getConfig(host));
   }

@@ -127,7 +127,29 @@ public class AvroMasterRPC implements MasterRPC {
       throw new IOException(e.getMessage());
     }
   }
+<<<<<<< HEAD
 
+=======
+ 
+  public synchronized HashMap<String, Integer> getChokeMap (String physNode)
+  throws IOException {
+    try {
+      ensureInitialized();
+     Map<Utf8,Integer> chokeMap=masterClient.getChokeMap(new Utf8 (physNode));
+     HashMap<String, Integer> newMap= new HashMap<String, Integer>();
+     for (Utf8 s: chokeMap.keySet())
+     {
+     newMap.put(s.toString(), chokeMap.get(s));
+     }
+     return newMap;
+    } catch (AvroRemoteException e) {
+      
+      LOG.debug("RPC error on " + toString(), e);
+      throw new IOException(e.getMessage());
+    }
+  
+  }
+>>>>>>> FLUME-182: Throttling logical nodes
   public synchronized FlumeConfigData getConfig(LogicalNode n)
       throws IOException {
     try {

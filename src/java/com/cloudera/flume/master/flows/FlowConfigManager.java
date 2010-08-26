@@ -117,6 +117,17 @@ abstract public class FlowConfigManager implements ConfigurationManager {
     return result;
   }
 
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  synchronized public void addChokeLimit(String physNode, String chokeID, int limit)
+  {
+    parent.addChokeLimit(physNode, chokeID, limit);
+ 
+  }
+  
   /**
    * {@inheritDoc}
    * 
@@ -167,6 +178,11 @@ abstract public class FlowConfigManager implements ConfigurationManager {
     return parent.getLogicalNode(physNode);
   }
 
+  @Override
+  synchronized public Map<String, Integer> getChokeMap(String physNode) {
+    return parent.getChokeMap(physNode);
+  }
+  
   @Override
   synchronized public Multimap<String, String> getLogicalNodeMap() {
     return parent.getLogicalNodeMap();

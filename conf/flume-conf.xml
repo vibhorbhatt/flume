@@ -199,7 +199,7 @@ configuration values placed in flume-site.xml.  -->
   
   <property>
     <name>flume.master.store</name>
-    <value>zookeeper</value>
+    <value>memory</value>
     <description>How the Flume Master stores node configurations. Must
       be either 'zookeeper' or 'memory'.</description>
   </property>

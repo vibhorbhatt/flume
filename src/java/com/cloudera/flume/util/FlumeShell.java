@@ -166,7 +166,7 @@ public class FlumeShell {
         "physicalnode logicalnode", true, 3));
     commandMap.put("submit unmapAll", new CommandDescription("", true, 1));
     commandMap.put("getreports", new CommandDescription("", true, 0));
-
+    commandMap.put("settlimit", new CommandDescription("physicalnode chokeid limit", true, 3));
   }
 
   protected AdminRPC client = null;

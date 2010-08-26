@@ -450,5 +450,5 @@ public class FailoverConfigurationManager extends
   public String getName() {
     return NAME;
   }
-
+  
 }

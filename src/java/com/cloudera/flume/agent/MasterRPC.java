@@ -19,6 +19,7 @@
 package com.cloudera.flume.agent;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,6 +59,8 @@ public interface MasterRPC {
   public void acknowledge(String group) throws IOException;
 
   public List<String> getLogicalNodes(String physNode) throws IOException;
+
+  public HashMap<String, Integer> getChokeMap(String physNode) throws IOException;
   
   public void putReports(Map<String, ReportEvent> reports) throws IOException;
 }

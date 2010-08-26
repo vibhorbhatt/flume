@@ -97,7 +97,7 @@ public class ConfigManager implements ConfigurationManager {
    * changes go in or none of them go in (and exception thrown).
    */
   synchronized public void setBulkConfig(Map<String, FlumeConfigData> configs)
-      throws IOException {
+  throws IOException {
     cfgStore.bulkSetConfig(configs);
   }
 
@@ -261,6 +261,12 @@ public class ConfigManager implements ConfigurationManager {
   synchronized public List<String> getLogicalNode(String physNode) {
     return cfgStore.getLogicalNodes(physNode);
   }
+  
+  @Override
+  synchronized public Map<String, Integer> getChokeMap(String physNode) {
+    return cfgStore.getChokeMap(physNode);
+  }
+  
 
   @Override
   synchronized public boolean addLogicalNode(String physNode, String logicNode) {
@@ -334,7 +340,7 @@ public class ConfigManager implements ConfigurationManager {
    */
   @Override
   synchronized public void removeLogicalNode(String logicNode)
-      throws IOException {
+  throws IOException {
     cfgStore.removeLogicalNode(logicNode);
     String physical = getPhysicalNode(logicNode);
     if (physical != null) {
@@ -397,7 +403,7 @@ public class ConfigManager implements ConfigurationManager {
   @Override
   synchronized public Multimap<String, String> getLogicalNodeMap() {
     ListMultimap<String, String> map = ArrayListMultimap
-        .<String, String> create(cfgStore.getLogicalNodeMap());
+    .<String, String> create(cfgStore.getLogicalNodeMap());
     return map;
   }
 
@@ -411,4 +417,11 @@ public class ConfigManager implements ConfigurationManager {
       logicalToPhysical.put(e.getValue(), e.getKey());
     }
   }
+
+  @Override
+  synchronized public void addChokeLimit(String physNode, String chokeID,
+      int limit) {
+    cfgStore.addChokeLimit(physNode, chokeID, limit);
+  }
+
 }

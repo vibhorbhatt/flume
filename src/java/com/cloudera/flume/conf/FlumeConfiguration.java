@@ -132,6 +132,7 @@ public class FlumeConfiguration extends Configuration {
   public static final String HISTORY_DEFAULTPERIOD = "flume.countHistory.period";
   public static final String HISTORY_MAXLENGTH = "flume.history.maxlength";
   public static final String TAIL_POLLPERIOD = "flume.tail.pollperiod";
+  public static final String PHYSICAL_THROTTLE_LIMIT = "flume.physical.throttlelimit";
 
   // Collector parameters
   public final static String COLLECTOR_EVENT_HOST = "flume.collector.event.host";
@@ -796,6 +797,12 @@ public class FlumeConfiguration extends Configuration {
     return get(WEBAPPS_PATH, "webapps");
   }
 
+  public int getPhysicalThrottleLimit()
+  {
+	  //the Default is set to Max Integer Limit
+  return getInt(PHYSICAL_THROTTLE_LIMIT,Integer.MAX_VALUE);
+  }
+  
   /**
    * This method loads the configuration, or does a hard exit if loading the
    * configuration fails.

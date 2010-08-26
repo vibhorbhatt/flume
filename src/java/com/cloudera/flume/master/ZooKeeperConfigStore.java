@@ -548,4 +548,17 @@ public class ZooKeeperConfigStore extends ConfigStore implements Watcher {
 
     saveNodeMaps(NODEMAPS_PATH);
   }
+
+  @Override
+  public void addChokeLimit(String physNode, String chokeID, int limit) {
+    // TODO Auto-generated method stub
+  }
+
+  @Override
+  public Map<String, Integer> getChokeMap(String physNode) {
+    // TODO Auto-generated method stub
+    // Have to add this zookeeper stuff 
+    System.out.println("I should not be here for now, its a Zoo\n!!!");
+    return null;
+  }
 }

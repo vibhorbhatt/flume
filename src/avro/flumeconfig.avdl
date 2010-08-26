@@ -53,6 +53,9 @@ protocol FlumeReportAvroServer{
   
   array<string> getLogicalNodes(string physNode);
   
+  map<int> getChokeMap(string physNode);
+  
+  
   // This marks a batch as complete
   void acknowledge(string ackid);
   

@@ -44,6 +44,7 @@ import com.cloudera.flume.conf.FlumeBuilder;
 import com.cloudera.flume.conf.FlumeConfiguration;
 import com.cloudera.flume.conf.FlumeSpecException;
 import com.cloudera.flume.conf.LogicalNodeContext;
+import com.cloudera.flume.handlers.debug.ChokeManager;
 import com.cloudera.flume.handlers.endtoend.AckListener;
 import com.cloudera.flume.handlers.endtoend.CollectorAckListener;
 import com.cloudera.flume.reporter.MasterReportPusher;
@@ -108,6 +109,8 @@ public class FlumeNode implements Reportable {
 
   final String physicalNodeName;
 
+  private ChokeManager chokeMan;
+
   /**
    * A FlumeNode constructor with pluggable xxxManagers. This is used for
    * debugging and test cases. The http server is assumed not to be started, and
@@ -161,10 +164,14 @@ public class FlumeNode implements Reportable {
       this.reportPusher = null;
     }
 
+    // initializing ChokeController
+    this.chokeMan = new ChokeManager(conf.getPhysicalThrottleLimit());
+
     this.vmInfo = new FlumeVMInfo(PHYSICAL_NODE_REPORT_PREFIX
         + this.getPhysicalNodeName() + ".");
     this.sysInfo = new SystemInfo(PHYSICAL_NODE_REPORT_PREFIX
         + this.getPhysicalNodeName() + ".");
+
   }
 
   public FlumeNode(MasterRPC rpc, boolean startHttp, boolean oneshot) {
@@ -236,6 +243,11 @@ public class FlumeNode implements Reportable {
     if (liveMan != null) {
       liveMan.start();
     }
+
+    if (chokeMan != null) {
+      chokeMan.start();
+    }
+
   }
 
   synchronized public void stop() {
@@ -254,6 +266,11 @@ public class FlumeNode implements Reportable {
     if (liveMan != null) {
       liveMan.stop();
     }
+
+    if (chokeMan != null) {
+      chokeMan.halt();
+    }
+
   }
 
   /**
@@ -349,7 +366,7 @@ public class FlumeNode implements Reportable {
     }
     LOG.info("Starting flume agent on: " + NetUtils.localhost());
     LOG.info(" Working directory is: " + new File(".").getAbsolutePath());
-
+    
     FlumeConfiguration.hardExitLoadConfig(); // will exit if conf file is bad.
 
     CommandLine cmd = null;
@@ -548,6 +565,10 @@ public class FlumeNode implements Reportable {
   // TODO (jon) rename when liveness manager renamed
   public LivenessManager getLivenessManager() {
     return liveMan;
+  }
+
+  public ChokeManager getChokeManager() {
+    return chokeMan;
   }
 
   @Override
