@@ -51,6 +51,16 @@ public class ChokeManager extends Thread {
     init();
   }
 
+  // create a fake initiator; one can initiate bunch of different ids with their
+  // different limits initially.
+  private void init() {
+    rwl_idtoThrottleInfoMap.writeLock().lock();
+    register("a", 500);
+    register("b", 800);
+    register("c", 1000);
+
+    rwl_idtoThrottleInfoMap.writeLock().unlock();
+  }
 
   /**
    * This method is the only method used to add entries to the
@@ -66,16 +76,6 @@ public class ChokeManager extends Thread {
     else {
       this.idtoThrottleInfoMap.get(throttleID).setMaxLimit(limit);
     }
-  }
-  // create a fake initiator; one can initiate bunch of different ids with their
-  // different limits initially.
-  private void init() {
-    rwl_idtoThrottleInfoMap.writeLock().lock();
-    register("a", 500);
-    register("b", 800);
-    register("c", 1000);
-
-    rwl_idtoThrottleInfoMap.writeLock().unlock();
   }
 
   /**
@@ -113,6 +113,12 @@ public class ChokeManager extends Thread {
   @Override
   public void run() {
 
+  
+    //Version version = RuntimeVersion.VERSION;
+    
+   // System.out.println("Hey I am in the Cmanager with Java version :"+version + " "+System.getProperty("java.version")+" !!\n");
+    
+    
     active = true;
 
     while (this.active) {
