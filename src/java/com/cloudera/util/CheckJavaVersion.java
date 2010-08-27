@@ -20,7 +20,7 @@ package com.cloudera.util;
 import org.apache.log4j.Logger;
 
 /**
- * This simply enforces that the current Java version is no older than 1.6.
+ * This class simply checks that the current Java version is no older than 1.6.
  */
 public class CheckJavaVersion {
   final public static Logger LOG = Logger.getLogger(CheckJavaVersion.class);
@@ -29,9 +29,10 @@ public class CheckJavaVersion {
 
   /**
    * This method first checks if the java version extracted from the System
-   * properties is in the expected format.  If the Java version is older than 1.6 it simply quits.
+   * properties is in the expected format. If it is in not the right format or
+   * the Java version is older than 1.6 it simply false, and true otherwise.
    */
-  public static void checkVersion() {
+  public static boolean checkVersion() {
     double currentJavaVersion = 0;
 
     try {
@@ -39,14 +40,14 @@ public class CheckJavaVersion {
           .getProperty("java.version").substring(0, 3));
     } catch (NumberFormatException e) {
       LOG.error("Java Version is an invalid format");
-      System.exit(-1); // exit with failure
+      return false; // exit with failure
     }
 
     if (currentJavaVersion < minJavaVersion) {
       LOG.error("Current Java Version: " + System.getProperty("java.version"));
       LOG.error("Version 1.6 or later required");
-      System.exit(-1); // exit with failure
+      return false; // exit with failure
     }
-
+    return true;
   }
 }
