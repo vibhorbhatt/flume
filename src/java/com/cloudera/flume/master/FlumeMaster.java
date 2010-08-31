@@ -381,7 +381,12 @@ public class FlumeMaster implements Reportable {
   public static void main(String[] argv) {
     FlumeNode.logVersion(LOG, Level.INFO);
     FlumeNode.logEnvironment(LOG, Level.INFO);
-
+    // Make sure the Java version is not older than 1.6
+    if (CheckJavaVersion.checkVersion()) {
+      LOG
+          .error("Exitting because of an old Java version or Java version in bad format");
+      System.exit(-1);
+    }
     FlumeConfiguration.hardExitLoadConfig(); // if config file is bad hardexit.
 
     CommandLine cmd = null;
@@ -417,10 +422,7 @@ public class FlumeMaster implements Reportable {
         System.exit(0);
       }
     }
-    // Make sure the Java version is not older than 1.6
-    if (CheckJavaVersion.checkVersion()) {
-      System.exit(-1);
-    }
+
     // This will instantiate and read FlumeConfiguration - so make sure that
     // this is *after* we set the MASTER_SERVER_ID above.
     FlumeMaster config = new FlumeMaster();

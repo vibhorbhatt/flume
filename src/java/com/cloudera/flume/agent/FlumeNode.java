@@ -341,7 +341,12 @@ public class FlumeNode implements Reportable {
   public static void setup(String[] argv) throws IOException {
     logVersion(LOG, Level.INFO);
     logEnvironment(LOG, Level.INFO);
-
+    // Make sure the Java version is not older than 1.6
+    if (CheckJavaVersion.checkVersion()) {
+      LOG
+          .error("Exitting because of an old Java version or Java version in bad format");
+      System.exit(-1);
+    }
     LOG.info("Starting flume agent on: " + NetUtils.localhost());
     LOG.info(" Working directory is: " + new File(".").getAbsolutePath());
 
@@ -378,10 +383,6 @@ public class FlumeNode implements Reportable {
       HelpFormatter fmt = new HelpFormatter();
       fmt.printHelp("FlumeNode", options, true);
       return;
-    }
-    // Make sure the Java version is not older than 1.6
-    if (CheckJavaVersion.checkVersion()) {
-      System.exit(-1);
     }
     // Check FlumeConfiguration file for settings that may cause node to fail.
     nodeConfigChecksOk();

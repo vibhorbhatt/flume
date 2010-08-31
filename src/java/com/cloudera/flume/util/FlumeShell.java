@@ -854,7 +854,12 @@ public class FlumeShell {
       TTransportException {
     FlumeNode.logVersion(LOG, Level.DEBUG);
     FlumeNode.logEnvironment(LOG, Level.DEBUG);
-
+    // Make sure the Java version is not older than 1.6
+    if (CheckJavaVersion.checkVersion()) {
+      LOG
+          .error("Exitting because of an old Java version or Java version in bad format");
+      System.exit(-1);
+    }
     CommandLine cmd = null;
     Options options = new Options();
     options.addOption("?", false, "Command line usage");
@@ -882,10 +887,6 @@ public class FlumeShell {
     boolean print = true;
     if (cmd.hasOption('q')) {
       print = false;
-    }
-    // Make sure the Java version is not older than 1.6
-    if (CheckJavaVersion.checkVersion()) {
-      System.exit(-1);
     }
 
     FlumeShell shell = new FlumeShell(print);
