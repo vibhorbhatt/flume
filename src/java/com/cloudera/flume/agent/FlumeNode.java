@@ -109,7 +109,7 @@ public class FlumeNode implements Reportable {
 
   final String physicalNodeName;
 
-  private ChokeManager chokeMan;
+  private final ChokeManager chokeMan;
 
   /**
    * A FlumeNode constructor with pluggable xxxManagers. This is used for
@@ -128,7 +128,9 @@ public class FlumeNode implements Reportable {
     this.failoverMans.put(getPhysicalNodeName(), dfMan);
     this.collectorAck = colAck;
     this.liveMan = liveman;
-
+    // As this is only for the testing puposes, just initialize the physical
+    // node limit to Max Int.
+    this.chokeMan = new ChokeManager(Integer.MAX_VALUE);
     this.vmInfo = new FlumeVMInfo(PHYSICAL_NODE_REPORT_PREFIX
         + this.physicalNodeName + ".");
 
@@ -366,7 +368,7 @@ public class FlumeNode implements Reportable {
     }
     LOG.info("Starting flume agent on: " + NetUtils.localhost());
     LOG.info(" Working directory is: " + new File(".").getAbsolutePath());
-    
+
     FlumeConfiguration.hardExitLoadConfig(); // will exit if conf file is bad.
 
     CommandLine cmd = null;

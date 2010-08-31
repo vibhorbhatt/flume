@@ -1,3 +1,20 @@
+/**
+ * Licensed to Cloudera, Inc. under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  Cloudera, Inc. licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.cloudera.flume.handlers.debug;
 
 import java.util.HashMap;
@@ -15,9 +32,8 @@ import com.sun.xml.internal.ws.util.Version;
  */
 public class ChokeManager extends Thread {
 
-  // Time quanta in millisecs. It is a
-  // constant right now, we can change
-  // this later. The main thread of the Chokemanager fills up the buckets
+  // Time quanta in millisecs. It is a constant right now, we can change this
+  // later. The main thread of the Chokemanager fills up the buckets
   // correcponding to different choke-ids and the physical node after this time
   // quanta.
 
@@ -30,9 +46,9 @@ public class ChokeManager extends Thread {
   // this tells whether the ChokeManager is active or not
   private volatile boolean active = false;
   private final int payLoadheadrsize = 50;
-  public final HashMap<String, ThrottleInfoData> idtoThrottleInfoMap = new HashMap<String, ThrottleInfoData>();
+  private final HashMap<String, ThrottleInfoData> idtoThrottleInfoMap = new HashMap<String, ThrottleInfoData>();
 
-  // this is the reader-writer lock on the idtoThrottleInfoMap. Whever it is
+  // This is the reader-writer lock on the idtoThrottleInfoMap. Whever it is
   // being updated, a writelock has to be taken on it, and when someone is just
   // reading the map, readlock on it is sufficient.
 
@@ -41,32 +57,17 @@ public class ChokeManager extends Thread {
   public ChokeManager(int limit) {
     super();
     // PhysicalNodeLimit is set right in the constructor
-
     rwl_idtoThrottleInfoMap = new ReentrantReadWriteLock();
     this.physicalLimit = limit * ChokeManager.timeQuanta;
-
-    // register the universal Id.
-    register("U", 0);
-
-    init();
-  }
-
-  // create a fake initiator; one can initiate bunch of different ids with their
-  // different limits initially.
-  private void init() {
-    rwl_idtoThrottleInfoMap.writeLock().lock();
-    register("a", 500);
-    register("b", 800);
-    register("c", 1000);
-
-    rwl_idtoThrottleInfoMap.writeLock().unlock();
   }
 
   /**
-   * This method is the only method used to add entries to the
-   * idtoThrottleInfoMap.
+   * This method is the only method used to add entries to the chokeMap
+   * (idtoThrottleInfoMap). This method also assumes that a write-lock has been
+   * already obtained on the Reader-Writer lock on ChokeMap
+   * (rwl_idtoThrottleInfoMap).
    */
-  public synchronized void register(String throttleID, int limit) {
+  public void register(String throttleID, int limit) {
 
     if (idtoThrottleInfoMap.get(throttleID) == null) {
       idtoThrottleInfoMap.put(throttleID, new ThrottleInfoData(limit,
@@ -83,42 +84,41 @@ public class ChokeManager extends Thread {
    * manager. It gets the choke-d to limit mapping from the master and loads it
    * to idtoThrottleInfoMap.
    */
-  public synchronized void updateidtoThrottleInfoMap(
-      HashMap<String, Integer> newMap) {
+  public void updateidtoThrottleInfoMap(HashMap<String, Integer> newMap) {
 
     rwl_idtoThrottleInfoMap.writeLock().lock();
+    try {
+      for (String s : newMap.keySet()) {
+        register(s, newMap.get(s));
+      }
+      // Set the PhysicalNode limit, which corresponds to entry for the ""
+      // string.
 
-    for (String s : newMap.keySet()) {
-      register(s, newMap.get(s));
+      // First make sure that there is an entry for the empty key.
+      if (newMap.containsKey("")) {
+        // ideally this should always true
+        this.physicalLimit = newMap.get("");
+      }
+    } finally {
+      rwl_idtoThrottleInfoMap.writeLock().unlock();
     }
-    // Set the PhysicalNode limit, which corresponds to entry for the ""
-    // string.
-    // First make sure that there is an entry for the empty key.
-    if (newMap.containsKey("")) {
-      // ideally this should always true
-      this.physicalLimit = newMap.get("");
-    }
-    rwl_idtoThrottleInfoMap.writeLock().unlock();
+
   }
 
   public boolean isChokeId(String ID) {
     Boolean res;
     rwl_idtoThrottleInfoMap.readLock().lock();
+    try{
     res = this.idtoThrottleInfoMap.containsKey(ID);
-
+    }
+    finally{
     rwl_idtoThrottleInfoMap.readLock().unlock();
+    }
     return res;
   }
 
   @Override
   public void run() {
-
-  
-    //Version version = RuntimeVersion.VERSION;
-    
-   // System.out.println("Hey I am in the Cmanager with Java version :"+version + " "+System.getProperty("java.version")+" !!\n");
-    
-    
     active = true;
 
     while (this.active) {
@@ -127,22 +127,19 @@ public class ChokeManager extends Thread {
       } catch (InterruptedException e) {
       }
 
-      // System.out.println("Hey I am in the run method of Cmanager 1!!\n");
-
       rwl_idtoThrottleInfoMap.readLock().lock();
       // the main policy logic comes here
-
-      // System.out.println("Hey I am in Cmanager Run, Dercrs = " +
-      // FlumeNode.getInstance().getChokeManager().idtoThrottleInfoMap.size()+
-      // "\n");
-      for (String key : this.idtoThrottleInfoMap.keySet()) {
-        synchronized (this.idtoThrottleInfoMap.get(key)) {
-          // this.idtoThrottleInfoMap.get(key).printState();
-          this.idtoThrottleInfoMap.get(key).bucketFillup();
-          this.idtoThrottleInfoMap.get(key).notifyAll();
+      try {
+        for (ThrottleInfoData choke : this.idtoThrottleInfoMap.values()) {
+          synchronized (choke) {
+            // choke.printState();
+            choke.bucketFillup();
+            choke.notifyAll();
+          }
         }
+      } finally {
+        rwl_idtoThrottleInfoMap.readLock().unlock();
       }
-      rwl_idtoThrottleInfoMap.readLock().unlock();
     }
   }
 
@@ -153,41 +150,36 @@ public class ChokeManager extends Thread {
   /**
    * This is the method a choke-decorator calls inside its append. This method
    * ensures that only the allowed number of bytes are shipped in a certain time
-   * quanta.  Also note that this method can block for a while but not forever.
+   * quanta. Also note that this method can block for a while but not forever.
    */
   public void deleteItems(String id, int numBytes) {
-
     rwl_idtoThrottleInfoMap.readLock().lock();
-    // simple policy for now: if the chokeid is not there then simply return,
-    // essentially no throttling.
-    if (this.isChokeId(id) == false) {
-      rwl_idtoThrottleInfoMap.readLock().unlock();
-      return;
-    }
+    try {
+      // simple policy for now: if the chokeid is not there then simply return,
+      // essentially no throttling with an invalid chokeID.
+      if (this.isChokeId(id) != false) {
 
-    int loopCount = 0;
-    synchronized (this.idtoThrottleInfoMap.get(id)) {
-      while (this.active
-          && !this.idtoThrottleInfoMap.get(id).bucketCompare(
-              numBytes + this.payLoadheadrsize)) {
-
-        // System.out.println("Hey I am blocked!!\n");
-
-        try {
-          this.idtoThrottleInfoMap.get(id).wait(ChokeManager.timeQuanta);
-        } catch (InterruptedException e) {
-          // TODO Auto-generated catch block
+        int loopCount = 0;
+        synchronized (this.idtoThrottleInfoMap.get(id)) {
+          while (this.active
+              && !this.idtoThrottleInfoMap.get(id).bucketCompare(
+                  numBytes + this.payLoadheadrsize)) {
+            try {
+              this.idtoThrottleInfoMap.get(id).wait(ChokeManager.timeQuanta);
+            } catch (InterruptedException e) {
+              // TODO Auto-generated catch block
+            }
+            if (loopCount++ >= 2) // just wait twice to avoid starvation
+              break;
+          }
+          this.idtoThrottleInfoMap.get(id).removeTokens(
+              numBytes + this.payLoadheadrsize);
+          // We are not taking the physical limit into account, that's policy
+          // stuff and will figure this out later
         }
-
-        if (loopCount++ >= 2) // just wait twice to avoid starvation
-          break;
       }
-      this.idtoThrottleInfoMap.get(id).removeTokens(
-          numBytes + this.payLoadheadrsize);
-      // We are not taking the physical limit into account, that's policy stuff
-      // and will figure this out later
+    } finally {
+      rwl_idtoThrottleInfoMap.readLock().unlock();
     }
-    rwl_idtoThrottleInfoMap.readLock().unlock();
   }
-
 }

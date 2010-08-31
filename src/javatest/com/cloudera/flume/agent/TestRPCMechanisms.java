@@ -161,6 +161,13 @@ public class TestRPCMechanisms {
       assertEquals("string2", stringMetrics.get("string2").toString());
       return null;
     }
+
+    @Override
+    public Map<Utf8, Integer> getChokeMap(Utf8 physNode)
+        throws AvroRemoteException {
+      // TODO Auto-generated method stub
+      return null;
+    }
   }
 
   /**
@@ -256,6 +263,12 @@ public class TestRPCMechanisms {
       } catch (TTransportException e) {
         throw new IOException(e.getMessage());
       }
+    }
+
+    @Override
+    public Map<String, Integer> getChokeMap(String physNode) throws TException {
+      // TODO Auto-generated method stub
+      return null;
     }
   }
 

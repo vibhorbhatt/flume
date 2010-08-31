@@ -68,26 +68,8 @@ public class MasterClientServerAvro implements FlumeReportAvroServer, RPCServer 
     return out;
   }
 
-<<<<<<< HEAD
-  public AvroFlumeConfigData getConfig(CharSequence host)
+public AvroFlumeConfigData getConfig(CharSequence host)
       throws AvroRemoteException {
-=======
-  
-  public Map<Utf8, Integer> getChokeMap(Utf8 physNode)
-      throws AvroRemoteException {
- Map<String, Integer> chokeMap = delegate.getChokeMap(physNode.toString());
- 
- Map <Utf8,Integer> newMap = new  HashMap<Utf8, Integer>();
-    for(String s:chokeMap.keySet())
-    {
-    newMap.put(new Utf8 (s), chokeMap.get(s));
-    }
-    return newMap;
-  }
-  
-  
-  public AvroFlumeConfigData getConfig(Utf8 host) throws AvroRemoteException {
->>>>>>> FLUME-182: Throttling logical nodes
     FlumeConfigData data = delegate.getConfig(host.toString());
     if (data != null) {
       return configToAvro(data);
@@ -241,6 +223,5 @@ public class MasterClientServerAvro implements FlumeReportAvroServer, RPCServer 
     out.flowID = in.flowID.toString();
     return out;
   }
-
 
 }

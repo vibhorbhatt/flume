@@ -111,6 +111,13 @@ public class TestAvroMultiMasterRPC {
         throws AvroRemoteException {
       return null;
     }
+
+    @Override
+    public Map<Utf8, Integer> getChokeMap(Utf8 physNode)
+        throws AvroRemoteException {
+      // TODO Auto-generated method stub
+      return null;
+    }
   }
 
   /**

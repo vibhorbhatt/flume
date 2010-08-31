@@ -420,10 +420,10 @@ abstract public class TranslatingConfigurationManager implements
   /**
    * {@inheritDoc}
    */
-  synchronized public Map<String,Integer> getChokeMap(String physNode) {
+  synchronized public Map<String, Integer> getChokeMap(String physNode) {
     return parentMan.getChokeMap(physNode);
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -450,14 +450,12 @@ abstract public class TranslatingConfigurationManager implements
    * {@inheritDoc}
    */
   @Override
-  synchronized public void addChokeLimit(String physNode, String chokeID, int limit)
-  {
-  parentMan.addChokeLimit(physNode, chokeID, limit);
-    
+  synchronized public void addChokeLimit(String physNode, String chokeID,
+      int limit) {
+    parentMan.addChokeLimit(physNode, chokeID, limit);
+
   }
 
-  
-  
   /**
    * {@inheritDoc}
    */

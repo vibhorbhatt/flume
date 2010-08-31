@@ -54,11 +54,11 @@ abstract public class ConfigStore {
   abstract public void addLogicalNode(String physNode, String logicNode);
 
   /**
-   * This puts a throttling limit on a chokeId for a particular physical node.
-   */ 
+   * This adds/updates the <chokeId> to <limit> Map for the particular physical
+   * node.
+   */
   abstract public void addChokeLimit(String physNode, String chokeID, int limit);
-  
-  
+
   /**
    * This get the list of logical nodes associated with a physical node.
    */
@@ -87,7 +87,7 @@ abstract public class ConfigStore {
   abstract public void unmapLogicalNode(String physNode, String logicNode);
 
   /**
-   * Remove a logical node from the logical node data flow mapping. 
+   * Remove a logical node from the logical node data flow mapping.
    */
   abstract public void removeLogicalNode(String logicNode) throws IOException;
 
@@ -95,10 +95,10 @@ abstract public class ConfigStore {
    * Unmaps all logical nodes from all physical nodes, except for the main
    * logical node. (logicalnnodename == physicalnodename)
    */
-  
+
   /**
    * This puts a throttling limit on a chokeId for a particular physical node.
-   */ 
+   */
   abstract public void unmapAllLogicalNodes();
 
 }

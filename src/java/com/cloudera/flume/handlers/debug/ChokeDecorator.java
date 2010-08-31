@@ -59,15 +59,23 @@ public class ChokeDecorator<S extends EventSink> extends EventSinkDecorator<S> {
   public static SinkDecoBuilder builder() {
 
     return new SinkDecoBuilder() {
+      // In the current version we don't check if the id (argv[0]) is valid
+      // chokeId.
+      // If it is not, then this this choke decorator will have no throttling
+      // limit.
       @Override
       public EventSinkDecorator<EventSink> build(Context context,
           String... argv) {
-        // In the current version we don't check if the id (argv[0]) is valid.
-        // If it is not, then this this choke decorator will have no throttling
-        // limit.
-        return new ChokeDecorator<EventSink>(null, argv[0]);
+        // If the user passes no argument for the choke decorator, then this
+        // choke does not belong to any choke-id level throttling, but it
+        // belongs to the physical level throttling.
+        String chokeID = "";
+        // If soem argumet is passed, it is taken as the chokeID
+        if (argv.length > 0) {
+          chokeID = argv[0];
+        }
+        return new ChokeDecorator<EventSink>(null, chokeID);
       }
-
     };
   }
 

@@ -20,6 +20,7 @@ package com.cloudera.flume.agent;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -81,6 +82,13 @@ public class MockMasterRPC implements MasterRPC {
   @Override
   public void putReports(Map<String, ReportEvent> reports) throws IOException {
     
+  }
+
+  @Override
+  public HashMap<String, Integer> getChokeMap(String physNode)
+      throws IOException {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

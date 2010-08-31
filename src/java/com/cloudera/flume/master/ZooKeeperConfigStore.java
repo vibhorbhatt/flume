@@ -557,8 +557,8 @@ public class ZooKeeperConfigStore extends ConfigStore implements Watcher {
   @Override
   public Map<String, Integer> getChokeMap(String physNode) {
     // TODO Auto-generated method stub
-    // Have to add this zookeeper stuff 
-    System.out.println("I should not be here for now, its a Zoo\n!!!");
-    return null;
+    // Have to add this zookeeper stuff
+    LOG.error("addChoke at ZooKeeper not supported yet");
+    throw new UnsupportedOperationException();
   }
 }

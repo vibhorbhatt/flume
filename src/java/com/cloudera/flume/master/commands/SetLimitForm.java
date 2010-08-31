@@ -27,7 +27,7 @@ import com.cloudera.flume.master.MasterExecException;
 import com.google.common.base.Preconditions;
 
 /**
- * This bean is for decommissioning a logical node
+ * This implements the "settlimit" command
  */
 public class SetLimitForm {
 
@@ -56,13 +56,13 @@ public class SetLimitForm {
     return new Execable() {
       @Override
       public void exec(String[] args) throws MasterExecException, IOException {
-        //first chek the length of the arguments
+        //first check the length of the arguments
         if (args.length <2) {
           throw new MasterExecException("missing arguments", null);
              }
         
         String physicalNodeName = args[0];
-        // one should check whethr the physicalnodename even exists
+        // one should check whether the physicalnodename even exists
         if (FlumeMaster.getInstance().getSpecMan().getLogicalNode(
             physicalNodeName).isEmpty()) {
           throw new MasterExecException("PhysicalNode Does Not Exist", null);
