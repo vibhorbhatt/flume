@@ -384,7 +384,7 @@ public class FlumeMaster implements Reportable {
     // Make sure the Java version is not older than 1.6
     if (!CheckJavaVersion.iskVersionOk()) {
       LOG
-          .error("Exiting because of an old Java version or Java version in bad format");
+          .error("Exiting because of an old Java version or Java version in bad format") ;
       System.exit(-1);
     }
     FlumeConfiguration.hardExitLoadConfig(); // if config file is bad hardexit.
