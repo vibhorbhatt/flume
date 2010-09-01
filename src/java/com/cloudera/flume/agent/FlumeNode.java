@@ -342,9 +342,9 @@ public class FlumeNode implements Reportable {
     logVersion(LOG, Level.INFO);
     logEnvironment(LOG, Level.INFO);
     // Make sure the Java version is not older than 1.6
-    if (CheckJavaVersion.checkVersion()) {
+    if (!CheckJavaVersion.iskVersionOk()) {
       LOG
-          .error("Exitting because of an old Java version or Java version in bad format");
+          .error("Exiting because of an old Java version or Java version in bad format");
       System.exit(-1);
     }
     LOG.info("Starting flume agent on: " + NetUtils.localhost());

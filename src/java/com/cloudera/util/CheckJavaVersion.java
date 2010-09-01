@@ -30,9 +30,9 @@ public class CheckJavaVersion {
   /**
    * This method first checks if the java version extracted from the System
    * properties is in the expected format. If it is in not the right format or
-   * the Java version is older than 1.6 it simply false, and true otherwise.
+   * the Java version is older than 1.6 it simply returns false, and true otherwise.
    */
-  public static boolean checkVersion() {
+  public static boolean iskVersionOk() {
     double currentJavaVersion = 0;
 
     try {
