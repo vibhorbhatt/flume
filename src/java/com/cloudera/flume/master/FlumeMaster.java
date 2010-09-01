@@ -382,7 +382,7 @@ public class FlumeMaster implements Reportable {
     FlumeNode.logVersion(LOG, Level.INFO);
     FlumeNode.logEnvironment(LOG, Level.INFO);
     // Make sure the Java version is not older than 1.6
-    if (!CheckJavaVersion.iskVersionOk()) {
+    if (!CheckJavaVersion.isVersionOk()) {
       LOG
           .error("Exiting because of an old Java version or Java version in bad format") ;
       System.exit(-1);

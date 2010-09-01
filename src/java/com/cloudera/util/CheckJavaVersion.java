@@ -28,11 +28,11 @@ public class CheckJavaVersion {
   private final static double minJavaVersion = 1.6;
 
   /**
-   * This method first checks if the java version extracted from the System
+   * This method first checks if the java version extracted from the system
    * properties is in the expected format. If it is in not the right format or
    * the Java version is older than 1.6 it simply returns false, and true otherwise.
    */
-  public static boolean iskVersionOk() {
+  public static boolean isVersionOk() {
     double currentJavaVersion = 0;
 
     try {
