@@ -34,90 +34,27 @@ import com.cloudera.flume.reporter.ReportManager;
 import com.cloudera.flume.reporter.aggregator.CounterSink;
 
 /**
- * Demonstrates that lazy open defers until append happens to actually open.
+ * Deomnstrates basic throttling works within some limits
  */
 public class TestChokeDecos {
   final public static Logger LOG = Logger.getLogger(TestChokeDecos.class);
 
-  static class OpenInstanceCountingSink extends EventSink.Base {
-    int opened = 0;
-    int closed = 0;
+  // define constants for the test cases
 
-    @Override
-    public void append(Event e) throws IOException {
-    }
+  final int numChokes = 10;
+  
+  ChokeManager testChokeMan = new ChokeManager(Integer.MAX_VALUE);
 
-    @Override
-    public void close() throws IOException {
-      closed++;
-      LOG.info("actually closed");
-    }
+  
+  public void setupTest()
+       {
+         
+       }
 
-    @Override
-    public void open() throws IOException {
-      opened++;
-      LOG.info("actually open happened now");
-    }
-  }
 
-  @Test
-  public void testLazyOpen() throws IOException {
-    OpenInstanceCountingSink snk = new OpenInstanceCountingSink();
-
-    LazyOpenDecorator<EventSink> lazy = new LazyOpenDecorator<EventSink>(snk);
-    lazy.open();
-    LOG.info("lazy decorator opened");
-    assertEquals(0, snk.opened);
-
-    LOG.info("appending");
-    Event e = new EventImpl("foo".getBytes());
-    lazy.append(e);
-    assertEquals(1, snk.opened);
-    LOG.info("done");
-  }
-
-  @Test
-  public void testLazyClosed() throws IOException {
-    OpenInstanceCountingSink snk = new OpenInstanceCountingSink();
-
-    LazyOpenDecorator<EventSink> lazy = new LazyOpenDecorator<EventSink>(snk);
-    lazy.open();
-    lazy.close();
-    LOG.info("lazy decorator opened");
-    assertEquals(0, snk.closed);
-
-    LOG.info("appending");
-    Event e = new EventImpl("foo".getBytes());
-    lazy.open();
-    lazy.append(e);
-    lazy.close();
-    assertEquals(1, snk.opened);
-    LOG.info("done");
-  }
-
-  /**
-   * Tests the lazy open through another mechanism, and tests the builder
-   */
-  @Test
-  public void testLazyOpenBuild() throws IOException, FlumeSpecException {
-    EventSink snk = FlumeBuilder.buildSink(new ReportTestingContext(),
-        "{ lazyOpen => counter(\"count\") } ");
-    CounterSink cnt = (CounterSink) ReportManager.get().getReportable("count");
-
-    boolean ok = false;
-    Event e = new EventImpl("event".getBytes());
-    snk.open();
-    try {
-      cnt.append(e);
-    } catch (Exception ex) {
-      ok = true;
-      // should be thrown because not actually open
-    }
-    assertTrue(ok);
-
-    snk.append(e);
-
-    assertEquals(1, cnt.getCount());
-    snk.close();
-  }
+  
+ public void runTest()
+      {
+        
+      }
 }
