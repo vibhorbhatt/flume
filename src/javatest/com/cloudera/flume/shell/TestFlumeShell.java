@@ -18,6 +18,7 @@
 
 package com.cloudera.flume.shell;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -61,6 +62,25 @@ public class TestFlumeShell extends SetupMasterTestEnv {
     sh.executeLine("exec config localhost null null");
     Clock.sleep(250);
     assertTrue(flumeMaster.getSpecMan().getAllConfigs().size() > 0);
+  }
+
+  /**
+   * Start a master, connect to it via the shell, and then issue a settlimit and
+   * make sure the chokeMap at the master is updated.
+   */
+  @Test
+  public void testSettlimit() throws InterruptedException, TTransportException,
+      IOException {
+
+    FlumeShell sh = new FlumeShell();
+
+    sh
+        .executeLine("connect localhost:"
+            + FlumeConfiguration.DEFAULT_ADMIN_PORT);
+    sh.executeLine("exec settlimit physNode choke 786");
+    Clock.sleep(250);
+    assertEquals(786, flumeMaster.getSpecMan().getChokeMap("physNode").get(
+        "choke").intValue());
   }
 
   /**
@@ -186,7 +206,7 @@ public class TestFlumeShell extends SetupMasterTestEnv {
   @Test
   public void testNodesDone() throws InterruptedException, TTransportException,
       IOException {
-    assertEquals(0, flumeMaster.getSpecMan().getAllConfigs().size());    
+    assertEquals(0, flumeMaster.getSpecMan().getAllConfigs().size());
 
     String nodename = "bar";
     flumeMaster.getSpecMan().addLogicalNode(nodename, "foo");
@@ -217,10 +237,11 @@ public class TestFlumeShell extends SetupMasterTestEnv {
     NodeState status = flumeMaster.getStatMan().getNodeStatuses().get("foo").state;
     NodeState idle = NodeState.IDLE;
     assertEquals(status, idle);
-//    TODO: uncomment when there is a clean way to get at the reportable
-//    AccumulatorSink cnt = (AccumulatorSink) ReportManager.get().getReportable(
-//        "count");
-//    assertEquals(100, cnt.getCount());
+    // TODO: uncomment when there is a clean way to get at the reportable
+    // AccumulatorSink cnt = (AccumulatorSink)
+    // ReportManager.get().getReportable(
+    // "count");
+    // assertEquals(100, cnt.getCount());
     n.stop();
   }
 

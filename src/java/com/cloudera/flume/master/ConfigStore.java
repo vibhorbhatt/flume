@@ -55,7 +55,8 @@ abstract public class ConfigStore {
 
   /**
    * This adds/updates the <chokeId> to <limit> Map for the particular physical
-   * node.
+   * node. The limit is in KB/sec, and puts a approximate upperbound on the
+   * number of bytes which can be shipped accross this choke.
    */
   abstract public void addChokeLimit(String physNode, String chokeID, int limit);
 
@@ -94,10 +95,6 @@ abstract public class ConfigStore {
   /**
    * Unmaps all logical nodes from all physical nodes, except for the main
    * logical node. (logicalnnodename == physicalnodename)
-   */
-
-  /**
-   * This puts a throttling limit on a chokeId for a particular physical node.
    */
   abstract public void unmapAllLogicalNodes();
 

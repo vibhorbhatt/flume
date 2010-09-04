@@ -65,7 +65,7 @@ public class UnmapLogicalNodeForm {
     return new Execable() {
       @Override
       public void exec(String[] args) throws MasterExecException, IOException {
-        Preconditions.checkArgument(args.length == 2);
+        Preconditions.checkArgument(args.length == 2, "Usage: physicalNode logicalNode");
         String physical = args[0];
         String logical = args[1];
         FlumeMaster.getInstance().getSpecMan().unmapLogicalNode(physical,

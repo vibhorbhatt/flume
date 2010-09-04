@@ -20,7 +20,10 @@ package com.cloudera.flume.master.commands;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
 import com.cloudera.flume.master.Command;
+import com.cloudera.flume.master.CommandManager;
 import com.cloudera.flume.master.Execable;
 import com.cloudera.flume.master.FlumeMaster;
 import com.cloudera.flume.master.MasterExecException;
@@ -30,7 +33,7 @@ import com.google.common.base.Preconditions;
  * This implements the "settlimit" command
  */
 public class SetLimitForm {
-
+  final static Logger LOG = Logger.getLogger(SetLimitForm.class);
   String logicalNode;
 
   public String getLogicalNode() {
@@ -56,29 +59,35 @@ public class SetLimitForm {
     return new Execable() {
       @Override
       public void exec(String[] args) throws MasterExecException, IOException {
-        //first check the length of the arguments
-        if (args.length <2) {
-          throw new MasterExecException("missing arguments", null);
-             }
-        
+        // first check the length of the arguments
+        Preconditions.checkArgument(args.length > 1,
+            "Usage: settlimit physicalNode chokeID (optional) limit");
+
         String physicalNodeName = args[0];
-        // one should check whether the physicalnodename even exists
+        // issue a polite warning if the physicalnode does not exist yet
         if (FlumeMaster.getInstance().getSpecMan().getLogicalNode(
             physicalNodeName).isEmpty()) {
-          throw new MasterExecException("PhysicalNode Does Not Exist", null);
-             }
-        
-        String chokerName = "";
-        int limit=Integer.MAX_VALUE;
-        
-        if (args.length == 2) {
-          //This is when only the physicalNode limit is passed
-          limit = Integer.parseInt(args[1]);
-
-        } else if (args.length>2){
-          chokerName = args[1];
-          limit = Integer.parseInt(args[2]);
+          LOG.warn("PhysicalNode: " + physicalNodeName + " not present yet!");
         }
+
+        String chokerName = "";
+        int limit;
+        // This is the index where we extract the limit from the arguments
+        int limitIndex = 1;
+
+        if (args.length > 2) {
+          limitIndex = 2;
+          chokerName = args[1];
+        }
+
+        try {
+          limit = Integer.parseInt(args[limitIndex]);
+        } catch (NumberFormatException e) {
+          LOG.error("Limit not given in the right format");
+          throw new MasterExecException("Limit not given in the right format",
+              e);
+        }
+        Preconditions.checkState(limit >= 0, "Limit has to be atleast 0");
         // only works in memory!! not in zookeeper.
         FlumeMaster.getInstance().getSpecMan().addChokeLimit(physicalNodeName,
             chokerName, limit);

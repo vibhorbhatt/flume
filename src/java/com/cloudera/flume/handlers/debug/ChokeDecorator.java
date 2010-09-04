@@ -37,7 +37,8 @@ import com.cloudera.flume.core.EventSinkDecorator;
 public class ChokeDecorator<S extends EventSink> extends EventSinkDecorator<S> {
 
   // this is the throttling limit set in KB/sec.
-  private String chokeId;
+  final String chokeId;
+  private ChokeManager chokeMan;
 
   public ChokeDecorator(S s, String tId) {
     super(s);
@@ -48,12 +49,28 @@ public class ChokeDecorator<S extends EventSink> extends EventSinkDecorator<S> {
   public void append(Event e) throws IOException {
 
     try {
-      FlumeNode.getInstance().getChokeManager().deleteItems(chokeId,
-          e.getBody().length);
+      chokeMan.deleteItems(chokeId, e.getBody().length);
       super.append(e);
     } catch (Exception e1) {
-      // throw new IOException(e1.getMessage(), e1);
+      throw new IOException(e1.getMessage(), e1);
     }
+  }
+
+  @Override
+  public void open() throws IOException {
+    setChokeManager(FlumeNode.getInstance().getChokeManager());
+    super.open();
+  }
+
+  // this function is added essentially for testing, else one could have set the
+  // chokeMan in open() itself
+  void setChokeManager(ChokeManager chokeman) {
+    this.chokeMan = chokeman;
+  }
+
+  public String getChokeId() {
+    return chokeId;
+
   }
 
   public static SinkDecoBuilder builder() {
@@ -70,7 +87,7 @@ public class ChokeDecorator<S extends EventSink> extends EventSinkDecorator<S> {
         // choke does not belong to any choke-id level throttling, but it
         // belongs to the physical level throttling.
         String chokeID = "";
-        // If soem argumet is passed, it is taken as the chokeID
+        // If some argumet is passed, it is taken as the chokeID
         if (argv.length > 0) {
           chokeID = argv[0];
         }

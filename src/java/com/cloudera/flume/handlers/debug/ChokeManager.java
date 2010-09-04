@@ -17,6 +17,7 @@
  */
 package com.cloudera.flume.handlers.debug;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -40,7 +41,8 @@ public class ChokeManager extends Thread {
   public static final int timeQuanta = 100;
 
   // maximum number of bytes allowed to be sent in the time quanta through a
-  // physicalNode.
+  // physicalNode. 
+  // In this current version this is not taken into the account yet.
   private int physicalLimit;
 
   // this tells whether the ChokeManager is active or not
@@ -54,11 +56,10 @@ public class ChokeManager extends Thread {
 
   ReentrantReadWriteLock rwl_idtoThrottleInfoMap;
 
-  public ChokeManager(int limit) {
-    super();
-    // PhysicalNodeLimit is set right in the constructor
+  public ChokeManager() {
+    super("ChokeManager");
     rwl_idtoThrottleInfoMap = new ReentrantReadWriteLock();
-    this.physicalLimit = limit * ChokeManager.timeQuanta;
+    this.physicalLimit = Integer.MAX_VALUE;
   }
 
   /**
@@ -94,7 +95,8 @@ public class ChokeManager extends Thread {
       // Set the PhysicalNode limit, which corresponds to entry for the ""
       // string.
 
-      // First make sure that there is an entry for the empty key.
+      // First make sure that there is an entry for the empty key which
+      // corresponds to the physicalNode limit.
       if (newMap.containsKey("")) {
         // ideally this should always true
         this.physicalLimit = newMap.get("");
@@ -105,14 +107,17 @@ public class ChokeManager extends Thread {
 
   }
 
+  /**
+   * This function returns true if the ChokeId passed is registered in the
+   * ChokeManager.
+   */
   public boolean isChokeId(String ID) {
     Boolean res;
     rwl_idtoThrottleInfoMap.readLock().lock();
-    try{
-    res = this.idtoThrottleInfoMap.containsKey(ID);
-    }
-    finally{
-    rwl_idtoThrottleInfoMap.readLock().unlock();
+    try {
+      res = this.idtoThrottleInfoMap.containsKey(ID);
+    } finally {
+      rwl_idtoThrottleInfoMap.readLock().unlock();
     }
     return res;
   }
@@ -151,8 +156,11 @@ public class ChokeManager extends Thread {
    * This is the method a choke-decorator calls inside its append. This method
    * ensures that only the allowed number of bytes are shipped in a certain time
    * quanta. Also note that this method can block for a while but not forever.
+   * This method blocks atmost for 2 time quantas. So if many driver threads are
+   * using the same choke and the message size is huge, accuracy can be thrown
+   * off, i.e., more bytes than the maximum limit can be shipped.
    */
-  public void deleteItems(String id, int numBytes) {
+  public void deleteItems(String id, int numBytes) throws IOException {
     rwl_idtoThrottleInfoMap.readLock().lock();
     try {
       // simple policy for now: if the chokeid is not there then simply return,
@@ -167,7 +175,8 @@ public class ChokeManager extends Thread {
             try {
               this.idtoThrottleInfoMap.get(id).wait(ChokeManager.timeQuanta);
             } catch (InterruptedException e) {
-              // TODO Auto-generated catch block
+              Thread.currentThread().interrupt();
+              throw new IOException(e);
             }
             if (loopCount++ >= 2) // just wait twice to avoid starvation
               break;
@@ -175,7 +184,7 @@ public class ChokeManager extends Thread {
           this.idtoThrottleInfoMap.get(id).removeTokens(
               numBytes + this.payLoadheadrsize);
           // We are not taking the physical limit into account, that's policy
-          // stuff and will figure this out later
+          // stuff and we'll figure this out later
         }
       }
     } finally {

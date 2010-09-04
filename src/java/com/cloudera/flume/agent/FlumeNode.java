@@ -130,7 +130,7 @@ public class FlumeNode implements Reportable {
     this.liveMan = liveman;
     // As this is only for the testing puposes, just initialize the physical
     // node limit to Max Int.
-    this.chokeMan = new ChokeManager(Integer.MAX_VALUE);
+    this.chokeMan = new ChokeManager();
     this.vmInfo = new FlumeVMInfo(PHYSICAL_NODE_REPORT_PREFIX
         + this.physicalNodeName + ".");
 
@@ -167,7 +167,7 @@ public class FlumeNode implements Reportable {
     }
 
     // initializing ChokeController
-    this.chokeMan = new ChokeManager(conf.getPhysicalThrottleLimit());
+    this.chokeMan = new ChokeManager();
 
     this.vmInfo = new FlumeVMInfo(PHYSICAL_NODE_REPORT_PREFIX
         + this.getPhysicalNodeName() + ".");

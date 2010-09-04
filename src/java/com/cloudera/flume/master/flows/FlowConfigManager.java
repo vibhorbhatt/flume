@@ -177,7 +177,9 @@ abstract public class FlowConfigManager implements ConfigurationManager {
   synchronized public List<String> getLogicalNode(String physNode) {
     return parent.getLogicalNode(physNode);
   }
-
+/**
+ * {@inheritDoc}
+ */
   @Override
   synchronized public Map<String, Integer> getChokeMap(String physNode) {
     return parent.getChokeMap(physNode);

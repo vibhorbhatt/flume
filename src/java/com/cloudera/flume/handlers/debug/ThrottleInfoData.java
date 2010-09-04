@@ -22,20 +22,29 @@
  */
 package com.cloudera.flume.handlers.debug;
 
+/**
+ * This class contains the basic data elements for a Choke and and simple
+ * operations to perform on that data.
+ */
 public class ThrottleInfoData {
-  private int max = 1000;
-  private int count = 0;
+  private int max = Integer.MAX_VALUE;
   private int bucket = 0;
   private String chokeID;
 
+  /**
+   *This costructor sets the limit on the Choke.
+   */
   public ThrottleInfoData(int limit, String id) {
     max = limit * ChokeManager.timeQuanta;
-    count = bucket = 0;
     chokeID = id;
   }
 
   synchronized public void setMaxLimit(int limit) {
     max = limit * ChokeManager.timeQuanta;
+  }
+
+  synchronized public int getMaxLimit() {
+    return max;
   }
 
   synchronized public void removeTokens(int numTokens) {
@@ -53,7 +62,6 @@ public class ThrottleInfoData {
 
   synchronized public void bucketFillup() {
     bucket = max;
-    count = 0;
   }
 
 }
