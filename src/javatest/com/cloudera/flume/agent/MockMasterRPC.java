@@ -81,14 +81,13 @@ public class MockMasterRPC implements MasterRPC {
 
   @Override
   public void putReports(Map<String, ReportEvent> reports) throws IOException {
-    
+
   }
 
   @Override
   public HashMap<String, Integer> getChokeMap(String physNode)
       throws IOException {
-    // TODO Auto-generated method stub
-    return null;
+    return new HashMap<String, Integer>();
   }
 
 }

@@ -117,17 +117,16 @@ abstract public class FlowConfigManager implements ConfigurationManager {
     return result;
   }
 
-  
   /**
    * {@inheritDoc}
    */
   @Override
-  synchronized public void addChokeLimit(String physNode, String chokeID, int limit)
-  {
+  synchronized public void addChokeLimit(String physNode, String chokeID,
+      int limit) {
     parent.addChokeLimit(physNode, chokeID, limit);
- 
+
   }
-  
+
   /**
    * {@inheritDoc}
    * 
@@ -177,14 +176,15 @@ abstract public class FlowConfigManager implements ConfigurationManager {
   synchronized public List<String> getLogicalNode(String physNode) {
     return parent.getLogicalNode(physNode);
   }
-/**
- * {@inheritDoc}
- */
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   synchronized public Map<String, Integer> getChokeMap(String physNode) {
     return parent.getChokeMap(physNode);
   }
-  
+
   @Override
   synchronized public Multimap<String, String> getLogicalNodeMap() {
     return parent.getLogicalNodeMap();
@@ -254,7 +254,8 @@ abstract public class FlowConfigManager implements ConfigurationManager {
   }
 
   @Override
-  synchronized public void removeLogicalNode(String logicNode) throws IOException {
+  synchronized public void removeLogicalNode(String logicNode)
+      throws IOException {
     String oldflow = getFlowId(logicNode);
     parent.removeLogicalNode(logicNode);
     ConfigurationManager flowCfg = flows.get(oldflow);
