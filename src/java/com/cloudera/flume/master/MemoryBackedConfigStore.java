@@ -80,6 +80,11 @@ public class MemoryBackedConfigStore extends ConfigStore {
 
   private final HashMap<String, HashMap<String, Integer>> chokeMap = new HashMap<String, HashMap<String, Integer>>();
 
+  /**
+   * This method adds/updates the limit on a particular chokeId on a
+   * physicalnode. The limit is given in KB/sec. If the chokeId passed is "",
+   * then it sets the limit on the physicalnode.
+   */
   public void addChokeLimit(String physNode, String chokeID, int limit) {
     if (!chokeMap.containsKey(physNode)) {
       // initialize it to something

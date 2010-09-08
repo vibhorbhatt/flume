@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.cloudera.flume.core.Event;
 import com.cloudera.flume.core.EventImpl;
 import com.cloudera.flume.core.EventSink;
 
@@ -39,7 +40,6 @@ import com.cloudera.flume.core.EventSink;
  */
 public class TestChokeDecos {
   final public static Logger LOG = Logger.getLogger(TestChokeDecos.class);
-  // define constants for the test cases
 
   // payLoadheadesize should equal to one in ChokeManager
   private final int payLoadheadrsize = 50;
@@ -51,7 +51,7 @@ public class TestChokeDecos {
   final long testTime = 5000; // in milisecs
 
   // number of drivers created for the testing
-  final int numFakeDrivers = 5 + generator.nextInt(45);
+  final int numFakeDrivers = 50;
 
   // here we set the limits for the minimum and maximum throttle rates in KB/sec
   int minTlimit = 500;
@@ -71,14 +71,25 @@ public class TestChokeDecos {
    */
   class TestChoke<S extends EventSink> extends ChokeDecorator<S> {
     private long numBytesShipped = 0;
-
-    public TestChoke(S s, String chokeId) {
-      super(s, chokeId);
-    }
+    private final ChokeManager chokeMan;
 
     public TestChoke(S s, String chokeId, ChokeManager cman) {
-      this(s, chokeId);
-      super.setChokeManager(cman);
+      super(s, chokeId);
+      this.chokeMan = cman;
+    }
+
+    /**
+     * We are overriding this because the method in ChokeManager calls
+     * super.append() and we want to avoid this as the higher-level sink is not
+     * initialized. In this method we just eliminate that call.
+     */
+    @Override
+    public void append(Event e) throws IOException {
+      try {
+        chokeMan.deleteItems(chokeId, e.getBody().length);
+      } catch (Exception e1) {
+        throw new IOException(e1.getMessage(), e1);
+      }
     }
 
     public synchronized void updateBytesCount(int numBytes) {
@@ -105,7 +116,7 @@ public class TestChokeDecos {
    */
   class FakeDriver extends Thread {
     TestChoke<EventSink> myChoke;
-    Boolean active = false;
+    private volatile Boolean active = false;
 
     public FakeDriver(TestChoke testChoke) {
       this.myChoke = testChoke;
@@ -145,6 +156,7 @@ public class TestChokeDecos {
         try {
           myChoke.append(eI);
         } catch (IOException e) {
+          LOG.error("Exception thrown: " + e.getMessage());
         }
         // update the bytecount on this ChokeId
         myChoke.updateBytesCount(eI.getBody().length);
@@ -182,8 +194,8 @@ public class TestChokeDecos {
     // now we create bunch of chokes
     TestChoke[] tchokeArray = new TestChoke[numChokes];
     for (int i = 0; i < numChokes; i++) {
-      // different chokes are created with their ids coming from the range "1",
-      // "2", "3"..."numChokes"
+      // different chokes are created with their ids coming from the range "0",
+      // "1", "2", "3"..."numChokes"
       tchokeArray[i] = new TestChoke<EventSink>(null, Integer.toString(i),
           testChokeMan);
     }
@@ -199,6 +211,7 @@ public class TestChokeDecos {
     for (int i = 0; i < numFakeDrivers; i++) {
       if (!testChokeMan.isChokeId(Integer.toString(i))) {
         LOG.error("ChokeID " + Integer.toString(i) + "not present");
+        fail();
       }
     }
     // Now we start the test.
@@ -216,7 +229,7 @@ public class TestChokeDecos {
     }
     testChokeMan.halt();
     // Take a little breather
-    Thread.sleep(100);
+    // Thread.sleep(100);
 
     // Now do the error evaluation, see how many bits were actually shipped.
     double errorRatio = 1.0;
@@ -252,7 +265,7 @@ public class TestChokeDecos {
     // create chokeIDs with random limit range
     for (int i = 0; i < numChokes; i++) {
       // different chokesIds are created with their ids coming from the range
-      // "1", "2", "3"...
+      // "0", "1", "2", "3"...
       // with a throttlelimit in the range [minTlimit, maxTlimit]
       chokeMap.put(Integer.toString(i), minTlimit
           + generator.nextInt(maxTlimit - minTlimit));
@@ -263,8 +276,8 @@ public class TestChokeDecos {
     // Initialize the chokes appropriately.
     TestChoke[] tchokeArray = new TestChoke[numChokes];
     for (int i = 0; i < numChokes; i++) {
-      // different chokes are created with their ids coming from the range "1",
-      // "2", "3"..."numFakeDrivers"
+      // different chokes are created with their ids coming from the range "0",
+      // "1", "2", "3"..."numFakeDrivers"
       tchokeArray[i] = new TestChoke<EventSink>(null, Integer.toString(i),
           testChokeMan);
     }
@@ -295,6 +308,7 @@ public class TestChokeDecos {
     for (TestChoke<EventSink> t : chokesUsed) {
       if (!testChokeMan.isChokeId(t.getChokeId())) {
         LOG.error("ChokeID " + t.getChokeId() + "not present");
+        fail();
       }
     }
 
@@ -312,7 +326,7 @@ public class TestChokeDecos {
     }
     testChokeMan.halt();
     // Take a little breather
-    Thread.sleep(100);
+    // Thread.sleep(100);
     // now do the error evaluation
     double errorRatio = 1.0;
 

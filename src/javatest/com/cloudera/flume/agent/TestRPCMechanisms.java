@@ -98,7 +98,11 @@ public class TestRPCMechanisms {
     }
 
     @Override
+<<<<<<< HEAD
     public AvroFlumeConfigData getConfig(CharSequence sourceId)
+=======
+    public AvroFlumeConfigData getConfig(Utf8 sourceId)
+>>>>>>> Flume-182 incorporating feedback form Henry
         throws AvroRemoteException {
       Log.info("getConfig called at server on " + this.server.getPort());
       FlumeConfigData out = new FlumeConfigData();
@@ -112,6 +116,7 @@ public class TestRPCMechanisms {
     }
 
     @Override
+<<<<<<< HEAD
     public List<CharSequence> getLogicalNodes(CharSequence physNode)
         throws AvroRemoteException {
       Log.info("getLogicalNodes called at server on " + this.server.getPort());
@@ -120,13 +125,30 @@ public class TestRPCMechanisms {
       out.add("two");
       out.add("three");
       out.add("four");
+=======
+    public GenericArray<Utf8> getLogicalNodes(Utf8 physNode)
+        throws AvroRemoteException {
+      Log.info("getLogicalNodes called at server on " + this.server.getPort());
+      GenericArray<Utf8> out = new GenericData.Array<Utf8>(4, Schema
+          .createArray(Schema.create(Type.STRING)));
+      out.add(new Utf8("one"));
+      out.add(new Utf8("two"));
+      out.add(new Utf8("three"));
+      out.add(new Utf8("four"));
+>>>>>>> Flume-182 incorporating feedback form Henry
       return out;
     }
 
     @Override
+<<<<<<< HEAD
     public boolean heartbeat(CharSequence logicalNode,
         CharSequence physicalNode, CharSequence clienthost, FlumeNodeState s,
         long timestamp) throws AvroRemoteException {
+=======
+    public boolean heartbeat(Utf8 logicalNode, Utf8 physicalNode,
+        Utf8 clienthost, FlumeNodeState s, long timestamp)
+        throws AvroRemoteException {
+>>>>>>> Flume-182 incorporating feedback form Henry
       Log.info("heartbeat called at server on " + this.server.getPort());
       return true;
     }
@@ -139,6 +161,7 @@ public class TestRPCMechanisms {
       FlumeReportAvro report = reports.get("reportKey");
       assertNotNull(report);
 
+<<<<<<< HEAD
       Map<CharSequence, Long> longMetrics = report.longMetrics;
       assertEquals(2, longMetrics.size());
 
@@ -156,6 +179,25 @@ public class TestRPCMechanisms {
           .doubleValue(), 0.0001);
 
       Map<CharSequence, CharSequence> stringMetrics = report.stringMetrics;
+=======
+      Map<Utf8, Long> longMetrics = report.longMetrics;
+      assertEquals(2, longMetrics.size());
+
+      assertEquals(Long.MIN_VALUE, ((Long) longMetrics.get(new Utf8("long1")))
+          .longValue());
+      assertEquals(Long.MAX_VALUE, ((Long) longMetrics.get(new Utf8("long2")))
+          .longValue());
+
+      Map<Utf8, Double> doubleMetrics = report.doubleMetrics;
+      assertEquals(2, doubleMetrics.size());
+
+      assertEquals(Double.MIN_VALUE, ((Double) doubleMetrics.get(new Utf8(
+          "double1"))).doubleValue(), 0.0001);
+      assertEquals(Double.MAX_VALUE, ((Double) doubleMetrics.get(new Utf8(
+          "double2"))).doubleValue(), 0.0001);
+
+      Map<Utf8, Utf8> stringMetrics = report.stringMetrics;
+>>>>>>> Flume-182 incorporating feedback form Henry
       assertEquals(2, stringMetrics.size());
       assertEquals("string1", stringMetrics.get("string1").toString());
       assertEquals("string2", stringMetrics.get("string2").toString());
@@ -165,7 +207,6 @@ public class TestRPCMechanisms {
     @Override
     public Map<Utf8, Integer> getChokeMap(Utf8 physNode)
         throws AvroRemoteException {
-      // TODO Auto-generated method stub
       return null;
     }
   }
@@ -267,7 +308,6 @@ public class TestRPCMechanisms {
 
     @Override
     public Map<String, Integer> getChokeMap(String physNode) throws TException {
-      // TODO Auto-generated method stub
       return null;
     }
   }

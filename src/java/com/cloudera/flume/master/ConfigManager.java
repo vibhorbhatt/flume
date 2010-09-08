@@ -261,9 +261,10 @@ public class ConfigManager implements ConfigurationManager {
   synchronized public List<String> getLogicalNode(String physNode) {
     return cfgStore.getLogicalNodes(physNode);
   }
-/**
- *@inheritDoc
- */
+
+  /**
+   *@inheritDoc
+   */
   @Override
   synchronized public Map<String, Integer> getChokeMap(String physNode) {
     return cfgStore.getChokeMap(physNode);

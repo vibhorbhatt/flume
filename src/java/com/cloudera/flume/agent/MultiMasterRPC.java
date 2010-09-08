@@ -66,7 +66,7 @@ public class MultiMasterRPC implements MasterRPC {
       Collections.shuffle(masterAddresses);
     }
     Pair<String, Integer> masterAddr = conf.getMasterHeartbeatServersList()
-    .get(0);
+        .get(0);
     this.MAX_RETRIES = maxRetries;
     this.RETRY_PAUSE_MS = retryPauseMS;
     this.rpcProtocol = conf.getMasterHeartbeatRPC();
@@ -131,7 +131,7 @@ public class MultiMasterRPC implements MasterRPC {
   }
 
   protected synchronized MasterRPC ensureConnected()
-  throws TTransportException, IOException {
+      throws TTransportException, IOException {
     return (masterRPC != null) ? masterRPC : findServer();
   }
 
@@ -241,7 +241,7 @@ public class MultiMasterRPC implements MasterRPC {
   }
 
   public List<String> getLogicalNodes(final String physicalNode)
-  throws IOException {
+      throws IOException {
     RPCRetryable<List<String>> retry = new RPCRetryable<List<String>>() {
       public List<String> doRPC() throws IOException {
         return masterRPC.getLogicalNodes(physicalNode);
@@ -258,8 +258,13 @@ public class MultiMasterRPC implements MasterRPC {
     }
   }
 
+  /**
+   * This method returns the ChokeId->limit (in KB/sec) map for the given
+   * physical node. This limit puts an approximate upperbound on the number of
+   * bytes which can be shipped accross a choke decorator.
+   */
   public HashMap<String, Integer> getChokeMap(final String physicalNode)
-  throws IOException {
+      throws IOException {
     RPCRetryable<HashMap<String, Integer>> retry = new RPCRetryable<HashMap<String, Integer>>() {
       public HashMap<String, Integer> doRPC() throws IOException {
         return masterRPC.getChokeMap(physicalNode);
@@ -313,7 +318,7 @@ public class MultiMasterRPC implements MasterRPC {
   }
 
   public void putReports(final Map<String, ReportEvent> reports)
-  throws IOException {
+      throws IOException {
     RPCRetryable<Void> retry = new RPCRetryable<Void>() {
       public Void doRPC() throws IOException {
         masterRPC.putReports(reports);

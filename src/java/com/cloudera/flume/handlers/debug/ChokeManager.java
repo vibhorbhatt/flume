@@ -41,7 +41,7 @@ public class ChokeManager extends Thread {
   public static final int timeQuanta = 100;
 
   // maximum number of bytes allowed to be sent in the time quanta through a
-  // physicalNode. 
+  // physicalNode.
   // In this current version this is not taken into the account yet.
   private int physicalLimit;
 
@@ -130,6 +130,12 @@ public class ChokeManager extends Thread {
       try {
         Thread.sleep(timeQuanta);
       } catch (InterruptedException e) {
+        /*
+         * Essentially send the control back to the beginning of the while loop.
+         * If the ChokeManager is Halted(), this.active would be false and we
+         * would fall out of this method.
+         */
+        continue;
       }
 
       rwl_idtoThrottleInfoMap.readLock().lock();

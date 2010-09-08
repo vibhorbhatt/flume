@@ -93,12 +93,11 @@ public class TestThriftMultiMasterRPC {
 
     @Override
     public void putReports(Map<String, FlumeReport> reports) throws TException {
-      
+
     }
 
     @Override
     public Map<String, Integer> getChokeMap(String physNode) throws TException {
-      // TODO Auto-generated method stub
       return null;
     }
   }

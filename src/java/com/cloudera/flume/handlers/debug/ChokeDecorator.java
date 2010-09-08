@@ -45,6 +45,10 @@ public class ChokeDecorator<S extends EventSink> extends EventSinkDecorator<S> {
     chokeId = tId;
   }
 
+  /**
+   * This append can block for a little while if the number of bytes shipped
+   * accross this Choke has reached its limit. But it does not block forever.
+   */
   @Override
   public void append(Event e) throws IOException {
 
@@ -56,18 +60,18 @@ public class ChokeDecorator<S extends EventSink> extends EventSinkDecorator<S> {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void open() throws IOException {
-    setChokeManager(FlumeNode.getInstance().getChokeManager());
+    this.chokeMan = FlumeNode.getInstance().getChokeManager();
     super.open();
   }
 
-  // this function is added essentially for testing, else one could have set the
-  // chokeMan in open() itself
-  void setChokeManager(ChokeManager chokeman) {
-    this.chokeMan = chokeman;
-  }
-
+  /**
+   * Returns the ChokeId corresponding to this choke.
+   */
   public String getChokeId() {
     return chokeId;
 
