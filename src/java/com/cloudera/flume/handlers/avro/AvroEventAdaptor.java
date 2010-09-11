@@ -34,8 +34,7 @@ import com.google.common.base.Preconditions;
  * This wraps a Avro generated AvroFlumeEvent with a Flume Event interface.
  */
 class AvroEventAdaptor extends Event {
-
-  AvroFlumeEvent evt;
+  AvroFlumeEvent evt = null;
 
   AvroEventAdaptor(AvroFlumeEvent evt) {
     super();
@@ -44,13 +43,13 @@ class AvroEventAdaptor extends Event {
 
   @Override
   public byte[] getBody() {
-    return (byte[]) evt.get(2);
+    ByteBuffer temp = (ByteBuffer) evt.get(2);
+    return temp.array();
   }
 
   @Override
   public Priority getPriority() {
-    // convert the priority stuff
-    return null;
+    return convert(evt.priority);
   }
 
   @Override
@@ -82,7 +81,6 @@ class AvroEventAdaptor extends Event {
 
   public static com.cloudera.flume.handlers.avro.Priority convert(Priority p) {
     Preconditions.checkNotNull(p, "Argument must not be null.");
-
     switch (p) {
     case FATAL:
       return com.cloudera.flume.handlers.avro.Priority.FATAL;
@@ -125,35 +123,35 @@ class AvroEventAdaptor extends Event {
     tempAvroEvt.timestamp = e.getTimestamp();
     tempAvroEvt.priority = convert(e.getPriority());
     ByteBuffer bbuf = ByteBuffer.wrap(e.getBody());
-    //System.out.println("size of buff "+ bbuf.capacity()+" "+e.getBody().length);
-    
+
     tempAvroEvt.body = bbuf;
-    tempAvroEvt.nanos=e.getNanos();
-    tempAvroEvt.host= new Utf8(e.toString());
-    
+    tempAvroEvt.nanos = e.getNanos();
+    tempAvroEvt.host = new Utf8(e.toString());
+
     tempAvroEvt.fields = new HashMap<Utf8, ByteBuffer>();
-    for(String s : e.getAttrs().keySet())
-    {
-      bbuf= ByteBuffer.wrap(e.getAttrs().get(s));
-      tempAvroEvt.fields.put(new Utf8(s), bbuf);
+    for (String s : e.getAttrs().keySet()) {
+      ByteBuffer temp = ByteBuffer.allocateDirect(e.getAttrs().get(s).length);
+      temp = ByteBuffer.wrap(e.getAttrs().get(s));
+      tempAvroEvt.fields.put(new Utf8(s), temp);
     }
     return tempAvroEvt;
   }
-/**
- * This returns the FlumEvent corresponding to the Avrovent evt 
- */
-  public Event toFlumeEvent(){
-    Event e= new EventImpl();
-    //convert evt -> e
-    
-    return e;
+
+  /**
+   * This returns the FlumEvent corresponding to the Avrovent evt.
+   * AvroFlumeEvent evt should be already initialized in the constructor.
+   */
+  public Event toFlumeEvent() {
+    Preconditions.checkNotNull(evt, "AvroFlumeEvent is not initialized");
+
+    return new EventImpl(this.getBody(), this.getTimestamp(), this
+        .getPriority(), this.getNanos(), this.getHost(), this.getAttrs());
   }
 
-  
   @Override
   public byte[] get(String attr) {
     return evt.fields.get(attr).array();
-  }
+    }
 
   @Override
   public Map<String, byte[]> getAttrs() {
@@ -176,9 +174,7 @@ class AvroEventAdaptor extends Event {
     }
 
     ByteBuffer bbuf = ByteBuffer.wrap(value);
-
     evt.fields.put(new Utf8(attr), bbuf);
-
   }
 
   @Override

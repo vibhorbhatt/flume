@@ -219,12 +219,15 @@ public class ThriftEventSource extends EventSource.Base {
     }
   }
 
+  /*
+   * These methods can be deleted now that we have a wrapper classes RpcSource/Sink
+   * with the builder into it. Left it for the deprecated sources/sinks.
+   */
   public static SourceBuilder builder() {
     return new SourceBuilder() {
-
       @Override
       public EventSource build(String... argv) {
-        Preconditions.checkArgument(argv.length == 1, "usage: tSource(port)");
+        Preconditions.checkArgument(argv.length == 1, "usage: Source(port)");
 
         int port = Integer.parseInt(argv[0]);
 

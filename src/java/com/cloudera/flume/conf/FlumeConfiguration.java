@@ -132,6 +132,7 @@ public class FlumeConfiguration extends Configuration {
   public static final String HISTORY_DEFAULTPERIOD = "flume.countHistory.period";
   public static final String HISTORY_MAXLENGTH = "flume.history.maxlength";
   public static final String TAIL_POLLPERIOD = "flume.tail.pollperiod";
+  public static final String EVENT_RPC_TYPE = "flume.event.rpc";
 
   // Collector parameters
   public final static String COLLECTOR_EVENT_HOST = "flume.collector.event.host";
@@ -544,6 +545,18 @@ public class FlumeConfiguration extends Configuration {
   public int getCollectorPort() {
     // FLUME = 35863 (flume on the telephone)
     return getInt(COLLECTOR_EVENT_PORT, 35853);
+  }
+
+  public String getEventRPC() {
+    String[] validRPCProtocols = { RPC_TYPE_AVRO, RPC_TYPE_THRIFT };
+    String entered = get(EVENT_RPC_TYPE, RPC_TYPE_THRIFT).toUpperCase();
+    for (String prot : validRPCProtocols) {
+      if (entered.equals(prot)) {
+        return prot;
+      }
+    }
+    // default
+    return RPC_TYPE_THRIFT;
   }
 
   public String getCollectorDfsDir() {

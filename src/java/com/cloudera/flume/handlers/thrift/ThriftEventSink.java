@@ -144,6 +144,11 @@ public class ThriftEventSink extends EventSink.Base {
 
   }
 
+  /*
+   * These methods can be deleted now that we have a wrapper classes
+   * RpcSource/Sink with the builder into it. Left it for the deprecated
+   * sources/sinks.
+   */
   public static SinkBuilder builder() {
     return new SinkBuilder() {
       @Override

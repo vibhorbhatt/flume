@@ -26,28 +26,24 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.avro.ipc.AvroRemoteException;
 import org.apache.log4j.Logger;
-import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TBinaryProtocol.Factory;
-import org.apache.thrift.server.TSaneThreadPoolServer;
-import org.apache.thrift.transport.TSaneServerSocket;
-import org.apache.thrift.transport.TTransportException;
-
-import sun.tools.tree.ThisExpression;
-
 import com.cloudera.flume.conf.FlumeConfiguration;
 import com.cloudera.flume.conf.SourceFactory.SourceBuilder;
 import com.cloudera.flume.core.Event;
-import com.cloudera.flume.core.EventImpl;
-import com.cloudera.flume.core.EventSink;
 import com.cloudera.flume.core.EventSource;
 import com.cloudera.flume.reporter.ReportEvent;
 import com.cloudera.util.Clock;
 import com.google.common.base.Preconditions;
 
 /**
- * This sets up the port that listens for incoming flume event rpc calls.
+ * This sets up the port that listens for incoming flumeAvroEvent rpc calls.
  */
 public class AvroEventSource extends EventSource.Base {
+  /*
+   * In this version I am setting the following constants same as for the thrift
+   * case. Seems like these constants don't really need to depend on the
+   * underlying implementation, so maybe we can give them more general names
+   * later.
+   */
   final static int DEFAULT_QUEUE_SIZE = FlumeConfiguration.get()
       .getThriftQueueSize();
   final static long MAX_CLOSE_SLEEP = FlumeConfiguration.get()
@@ -59,11 +55,13 @@ public class AvroEventSource extends EventSource.Base {
   public static final String A_QUEUE_FREE = "queueFree";
   public static final String A_ENQUEUED = "enqueued";
   public static final String A_DEQUEUED = "dequeued";
+  // BytesIN in here (unlike the Thrift version) corresponds to the total bytes
+  // of
+  // Event.body shipped.
   public static final String A_BYTES_IN = "bytesIn";
 
   final int port;
-  FlumeEventAvroServerImpl svr;
-  //TSaneThreadPoolServer server;
+  private FlumeEventAvroServerImpl svr;
 
   final BlockingQueue<Event> q;
   final AtomicLong enqueued = new AtomicLong();
@@ -73,7 +71,7 @@ public class AvroEventSource extends EventSource.Base {
   boolean closed = true;
 
   /**
-   * Create a thrift event source listening on port with a qsize buffer.
+   * Create a Avro event source listening on port with a qsize buffer.
    */
   public AvroEventSource(int port, int qsize) {
     this.port = port;
@@ -82,7 +80,7 @@ public class AvroEventSource extends EventSource.Base {
   }
 
   /**
-   * Get reportable data from the thrift event source.
+   * Get reportable data from the Avro event source.
    * 
    * @Override
    */
@@ -92,7 +90,7 @@ public class AvroEventSource extends EventSource.Base {
     rpt.setLongMetric(A_QUEUE_FREE, q.remainingCapacity());
     rpt.setLongMetric(A_ENQUEUED, enqueued.get());
     rpt.setLongMetric(A_DEQUEUED, dequeued.get());
-    //rpt.setLongMetric(A_BYTES_IN, svr.getBytesReceived());
+    rpt.setLongMetric(A_BYTES_IN, bytesIn.get());
     return rpt;
   }
 
@@ -102,8 +100,7 @@ public class AvroEventSource extends EventSource.Base {
   public AvroEventSource(int port, BlockingQueue<Event> q) {
     Preconditions.checkNotNull(q);
     this.port = port;
-     this.q = q;
-    
+    this.q = q;
   }
 
   public AvroEventSource(int port) {
@@ -117,6 +114,7 @@ public class AvroEventSource extends EventSource.Base {
     try {
       q.put(e);
       enqueued.getAndIncrement();
+      bytesIn.getAndAdd(e.getBody().length);
     } catch (InterruptedException e1) {
       LOG.error("blocked append was interrupted", e1);
       throw new IOException(e1);
@@ -125,32 +123,37 @@ public class AvroEventSource extends EventSource.Base {
 
   @Override
   synchronized public void open() throws IOException {
-    
-    this.svr= new FlumeEventAvroServerImpl(port){
-      
+
+    this.svr = new FlumeEventAvroServerImpl(port) {
       @Override
-      public Void append(AvroFlumeEvent evt) throws AvroRemoteException{
+      public Void append(AvroFlumeEvent evt) throws AvroRemoteException {
         // convert AvroEvent evt -> e
-       
+        AvroEventAdaptor adapt = new AvroEventAdaptor(evt);
         try {
-          enqueue(AvroEventAdaptor.convert(evt));
+          Event temp=adapt.toFlumeEvent();
+          System.out.println("Hi I am in the append : "+ new String(temp.getBody()));
+          enqueue(adapt.toFlumeEvent());
         } catch (IOException e1) {
           // TODO Auto-generated catch block
           e1.printStackTrace();
         }
-        
         super.append(evt);
         return null;
-      
       }
     };
+    LOG.info(String.format("Avro listening server on port %d...", port));
+    this.svr.start();
+    this.closed = false;
   }
 
   @Override
   synchronized public void close() throws IOException {
- 
+
     long sz = q.size();
     LOG.info(String.format("Queue still has %d elements ...", sz));
+
+    // Close down the server
+    this.svr.close();
 
     // drain the queue
     // TODO (jon) parameterize queue drain max sleep is one minute
@@ -182,9 +185,7 @@ public class AvroEventSource extends EventSource.Base {
 
   @Override
   public Event next() throws IOException {
-
     try {
-
       Event e = null;
       // block until an event shows up
       while ((e = q.poll(100, TimeUnit.MILLISECONDS)) == null) {
@@ -195,7 +196,6 @@ public class AvroEventSource extends EventSource.Base {
             return null;
           }
         }
-
       }
       // return the event
       synchronized (this) {
@@ -209,15 +209,18 @@ public class AvroEventSource extends EventSource.Base {
     }
   }
 
+  /*
+   * These methods can be deleted now that we have a wrapper classes
+   * RpcSource/Sink with the builder into it. Left it for the deprecated
+   * sources/sinks.
+   */
   public static SourceBuilder builder() {
     return new SourceBuilder() {
-
       @Override
       public EventSource build(String... argv) {
         Preconditions.checkArgument(argv.length == 1, "usage: tSource(port)");
 
         int port = Integer.parseInt(argv[0]);
-
         return new AvroEventSource(port);
       }
 

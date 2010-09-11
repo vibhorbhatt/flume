@@ -18,6 +18,8 @@
 
 package com.cloudera.flume.master;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -88,6 +90,7 @@ public class TestAvroAdminServer extends TestCase {
     public Map<CharSequence, AvroFlumeConfigData> getConfigs()
         throws AvroRemoteException {
       return new HashMap<CharSequence, AvroFlumeConfigData>();
+
     }
 
     @Override
@@ -99,7 +102,7 @@ public class TestAvroAdminServer extends TestCase {
   public void testMasterAdminServer() throws IOException {
     MyAvroServer server = new MyAvroServer();
     server.serve();
-
+//try{
     AdminRPC client = new AdminRPCAvro("localhost", 56789);
     LOG.info("Connected to test master");
 
@@ -114,7 +117,10 @@ public class TestAvroAdminServer extends TestCase {
 
     Map<String, FlumeConfigData> cfgs = client.getConfigs();
     assertEquals("Expected response was 0, got " + cfgs.size(), cfgs.size(), 0);
-
+  //}
+//catch (IOException e) {
+//  e.printStackTrace();
+//  }
     server.stop();
   }
 
@@ -125,5 +131,44 @@ public class TestAvroAdminServer extends TestCase {
       server.serve();
       server.stop();
     }
+  }
+
+  public void testMasterAdminServermultiple() throws IOException {
+    MyAvroServer server = new MyAvroServer();
+    server.serve();
+    int numClients = 2;
+    for (int i = 0; i < numClients; i++) {
+        Thread th = new Thread() {
+        public void run() {
+          try {
+            LOG.info("The thread is starting");
+            AdminRPC client = new AdminRPCAvro("localhost", 56789);
+           
+            long submit = client.submit(new Command(""));
+            assertEquals("Expected response was 42, got " + submit, submit, 42);
+
+            boolean succ = client.isSuccess(42);
+            assertEquals("Expected response was false, got " + succ, succ, false);
+
+            boolean fail = client.isFailure(42);
+            assertEquals("Expected response was true, got " + fail, fail, true);
+
+            Map<String, FlumeConfigData> cfgs = client.getConfigs();
+            assertEquals("Expected response was 0, got " + cfgs.size(), cfgs.size(), 0);
+            LOG.info("I was successful");
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        }
+      };
+      th.start();
+    }
+    try {
+      Thread.sleep(20000);
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    server.stop();
   }
 }
