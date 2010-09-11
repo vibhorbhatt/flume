@@ -23,12 +23,12 @@ public class FlumeEventAvroServerImpl implements FlumeEventAvroServer {
     SpecificResponder res = new SpecificResponder(FlumeEventAvroServer.class,
         this);
     this.http = new HttpServer(res, port);
+    this.http.start();
     // Current version of Avro 1.3.3 block the call below.
   }
 
   @Override
-  public Void append(AvroFlumeEvent evt) throws AvroRemoteException {
-    return null;
+  public void append(AvroFlumeEvent evt)  {
   }
 
   @Override

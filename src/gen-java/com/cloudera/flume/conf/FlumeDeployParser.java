@@ -1,4 +1,4 @@
-// $ANTLR 3.1.3 Mar 18, 2009 10:09:25 /home/vibhor/flume/flume/src/antlr/com/cloudera/flume/conf/FlumeDeploy.g 2010-09-10 16:45:38
+// $ANTLR 3.1.3 Mar 18, 2009 10:09:25 /home/vibhor/flume/flume/src/antlr/com/cloudera/flume/conf/FlumeDeploy.g 2010-09-10 18:24:20
 
 /**
  * Licensed to Cloudera, Inc. under one
@@ -284,7 +284,7 @@ public class FlumeDeployParser extends Parser {
 
 
             // AST REWRITE
-            // elements: host, sink, source
+            // elements: source, sink, host
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -1023,7 +1023,7 @@ public class FlumeDeployParser extends Parser {
 
 
             // AST REWRITE
-            // elements: args, Identifier
+            // elements: Identifier, args
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -1554,7 +1554,7 @@ public class FlumeDeployParser extends Parser {
 
 
             // AST REWRITE
-            // elements: sink, singleSink
+            // elements: singleSink, sink
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -1881,7 +1881,7 @@ public class FlumeDeployParser extends Parser {
 
 
             // AST REWRITE
-            // elements: simpleSink, Identifier
+            // elements: Identifier, simpleSink
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -1991,7 +1991,7 @@ public class FlumeDeployParser extends Parser {
 
 
             // AST REWRITE
-            // elements: args, simpleSink
+            // elements: simpleSink, args
             // token labels: 
             // rule labels: retval
             // token list labels: 
@@ -2094,7 +2094,7 @@ public class FlumeDeployParser extends Parser {
 
 
             // AST REWRITE
-            // elements: simpleSink, args
+            // elements: args, simpleSink
             // token labels: 
             // rule labels: retval
             // token list labels: 

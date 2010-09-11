@@ -34,7 +34,7 @@ record AvroFlumeEvent {
   map<bytes> fields;
 }
 
-void append( AvroFlumeEvent evt ) ;
+void append( AvroFlumeEvent evt ) oneway ;
     
 void close() ; 
 

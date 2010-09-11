@@ -128,7 +128,7 @@ class AvroEventAdaptor extends Event {
     tempAvroEvt.nanos = e.getNanos();
     tempAvroEvt.host = new Utf8(e.toString());
 
-    tempAvroEvt.fields = new HashMap<Utf8, ByteBuffer>();
+    tempAvroEvt.fields = new HashMap<CharSequence, ByteBuffer>();
     for (String s : e.getAttrs().keySet()) {
       ByteBuffer temp = ByteBuffer.allocateDirect(e.getAttrs().get(s).length);
       temp = ByteBuffer.wrap(e.getAttrs().get(s));
@@ -159,7 +159,7 @@ class AvroEventAdaptor extends Event {
       return Collections.<String, byte[]> emptyMap();
     }
     HashMap<String, byte[]> tempMap = new HashMap<String, byte[]>();
-    for (Utf8 u : evt.fields.keySet()) {
+    for (CharSequence u : evt.fields.keySet()) {
       tempMap.put(u.toString(), evt.fields.get(u).array());
 
     }

@@ -108,7 +108,8 @@ public class AvroEventSink extends EventSink.Base {
     FlumeEventAvroServerImpl testServer = new FlumeEventAvroServerImpl(port);
 
     AvroEventSink sink = new AvroEventSink("localhost", port);
-
+    
+    
     try {
       testServer.start();
       sink.open();

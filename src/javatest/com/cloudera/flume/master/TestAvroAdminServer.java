@@ -90,7 +90,6 @@ public class TestAvroAdminServer extends TestCase {
     public Map<CharSequence, AvroFlumeConfigData> getConfigs()
         throws AvroRemoteException {
       return new HashMap<CharSequence, AvroFlumeConfigData>();
-
     }
 
     @Override

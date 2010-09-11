@@ -41,7 +41,8 @@
         "name" : "evt",
         "type" : "AvroFlumeEvent"
       } ],
-      "response" : "null"
+      "response" : "null",
+      "one-way" : true
     },
     "close" : {
       "request" : [ ],

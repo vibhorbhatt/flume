@@ -141,7 +141,7 @@ public class TestAvroSinks implements ExampleData {
   @Test
   public void testSimpleManyAvroSend() throws IOException,
       InterruptedException {
-    final int threads = 1;
+    final int threads = 25;
     final FlumeConfiguration conf = FlumeConfiguration.get();
     // this is a slight tweak to avoid port conflicts
     final AvroEventSource tes = new AvroEventSource(conf.getCollectorPort() + 1);
@@ -164,7 +164,7 @@ public class TestAvroSinks implements ExampleData {
             snk.close();
 
           } catch (IOException e) {
-            //e.printStackTrace();
+            e.printStackTrace();
           } 
         }
       };

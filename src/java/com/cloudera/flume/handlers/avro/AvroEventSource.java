@@ -126,7 +126,7 @@ public class AvroEventSource extends EventSource.Base {
 
     this.svr = new FlumeEventAvroServerImpl(port) {
       @Override
-      public Void append(AvroFlumeEvent evt) throws AvroRemoteException {
+      public void append(AvroFlumeEvent evt) {
         // convert AvroEvent evt -> e
         AvroEventAdaptor adapt = new AvroEventAdaptor(evt);
         try {
@@ -138,7 +138,6 @@ public class AvroEventSource extends EventSource.Base {
           e1.printStackTrace();
         }
         super.append(evt);
-        return null;
       }
     };
     LOG.info(String.format("Avro listening server on port %d...", port));
