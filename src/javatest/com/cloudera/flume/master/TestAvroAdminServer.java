@@ -101,7 +101,6 @@ public class TestAvroAdminServer extends TestCase {
   public void testMasterAdminServer() throws IOException {
     MyAvroServer server = new MyAvroServer();
     server.serve();
-//try{
     AdminRPC client = new AdminRPCAvro("localhost", 56789);
     LOG.info("Connected to test master");
 
@@ -116,10 +115,6 @@ public class TestAvroAdminServer extends TestCase {
 
     Map<String, FlumeConfigData> cfgs = client.getConfigs();
     assertEquals("Expected response was 0, got " + cfgs.size(), cfgs.size(), 0);
-  //}
-//catch (IOException e) {
-//  e.printStackTrace();
-//  }
     server.stop();
   }
 

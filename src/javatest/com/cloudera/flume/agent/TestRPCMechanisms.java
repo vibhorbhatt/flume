@@ -88,7 +88,6 @@ public class TestRPCMechanisms {
     @Override
     public java.lang.Void acknowledge(CharSequence ackid)
         throws AvroRemoteException {
-
       return null;
     }
 

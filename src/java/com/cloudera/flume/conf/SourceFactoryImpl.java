@@ -49,7 +49,6 @@ import com.cloudera.flume.handlers.syslog.SyslogUdpSource;
 import com.cloudera.flume.handlers.text.TailDirSource;
 import com.cloudera.flume.handlers.text.TailSource;
 import com.cloudera.flume.handlers.thrift.PrioritizedThriftEventSource;
-import com.cloudera.flume.handlers.thrift.RpcSource;
 import com.cloudera.flume.handlers.thrift.ThriftEventSource;
 import com.cloudera.flume.handlers.twitter.TwitterStreamSource;
 import com.cloudera.util.Pair;
@@ -71,7 +70,7 @@ public class SourceFactoryImpl extends SourceFactory {
       // low level Sources
       { "null", NullSource.builder() },
       { "console", StdinSource.builder() },
-      { "rpcSource", RpcSource.builder() }, //creates AvroEventSource or ThriftEventSource
+      { "rpcSource", ThriftEventSource.builder() }, //creates AvroEventSource or ThriftEventSource
       { "tsource", ThriftEventSource.builder() }, // TODO (jon) deprecate this
       { "tSource", ThriftEventSource.builder() },
       { "text", TextFileSource.builder() }, { "tail", TailSource.builder() },

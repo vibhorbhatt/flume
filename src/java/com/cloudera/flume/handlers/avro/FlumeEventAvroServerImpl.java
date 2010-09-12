@@ -33,7 +33,7 @@ public class FlumeEventAvroServerImpl implements FlumeEventAvroServer {
 
   @Override
   public Void close() throws AvroRemoteException {
-    System.out.println("In the close method");
+    http.close();
     return null;
   }
 
