@@ -88,35 +88,22 @@ public class TestAvroMultiMasterRPC {
     }
 
     @Override
-<<<<<<< HEAD
     public AvroFlumeConfigData getConfig(CharSequence sourceId)
-=======
-    public AvroFlumeConfigData getConfig(Utf8 sourceId)
->>>>>>> Flume-182 incorporating feedback form Henry
         throws AvroRemoteException {
       return MasterClientServerAvro.configToAvro(new FlumeConfigData());
     }
 
     @Override
-<<<<<<< HEAD
     public List<CharSequence> getLogicalNodes(CharSequence physNode)
-=======
-    public GenericArray<Utf8> getLogicalNodes(Utf8 physNode)
->>>>>>> Flume-182 incorporating feedback form Henry
         throws AvroRemoteException {
       return null;
     }
 
     @Override
-<<<<<<< HEAD
     public boolean heartbeat(CharSequence logicalNode,
         CharSequence physicalNode, CharSequence clienthost, FlumeNodeState s,
         long timestamp) throws AvroRemoteException {
-=======
-    public boolean heartbeat(Utf8 logicalNode, Utf8 physicalNode,
-        Utf8 clienthost, FlumeNodeState s, long timestamp)
-        throws AvroRemoteException {
->>>>>>> Flume-182 incorporating feedback form Henry
+
       return true;
     }
 
@@ -127,10 +114,11 @@ public class TestAvroMultiMasterRPC {
     }
 
     @Override
-    public Map<Utf8, Integer> getChokeMap(Utf8 physNode)
+    public Map<CharSequence, Integer> getChokeMap(CharSequence physNode)
         throws AvroRemoteException {
       return null;
     }
+
   }
 
   /**

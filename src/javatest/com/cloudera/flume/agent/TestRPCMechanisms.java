@@ -120,6 +120,7 @@ public class TestRPCMechanisms {
       out.add("two");
       out.add("three");
       out.add("four");
+      return out;
     }
 
     @Override
@@ -163,7 +164,7 @@ public class TestRPCMechanisms {
     }
 
     @Override
-    public Map<Utf8, Integer> getChokeMap(Utf8 physNode)
+    public Map<CharSequence, Integer> getChokeMap(CharSequence physNode)
     throws AvroRemoteException {
       return null;
     }

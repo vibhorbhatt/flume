@@ -119,7 +119,7 @@ public class ThriftMasterRPC implements MasterRPC {
   }
 
 
-  public synchronized HashMap<String, Integer> getChokeMap (String physNode)
+  public synchronized Map<String, Integer> getChokeMap (String physNode)
      throws IOException {
     try {
       ensureConnected();

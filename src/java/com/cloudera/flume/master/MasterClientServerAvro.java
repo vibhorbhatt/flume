@@ -68,7 +68,7 @@ public class MasterClientServerAvro implements FlumeReportAvroServer, RPCServer 
     return out;
   }
 
-public AvroFlumeConfigData getConfig(CharSequence host)
+  public AvroFlumeConfigData getConfig(CharSequence host)
       throws AvroRemoteException {
     FlumeConfigData data = delegate.getConfig(host.toString());
     if (data != null) {
@@ -224,4 +224,14 @@ public AvroFlumeConfigData getConfig(CharSequence host)
     return out;
   }
 
+  @Override
+  public Map<CharSequence, Integer> getChokeMap(CharSequence physNode)
+      throws AvroRemoteException {
+    Map<String, Integer> chokeMap = delegate.getChokeMap(physNode.toString());
+    Map<CharSequence, Integer> newMap = new HashMap<CharSequence, Integer>();
+    for (String s : chokeMap.keySet()) {
+      newMap.put(s, chokeMap.get(s));
+    }
+    return newMap;
+  }
 }

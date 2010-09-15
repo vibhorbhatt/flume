@@ -148,8 +148,9 @@ public class FlumeShell {
     commandMap.put("exec unmap", new CommandDescription(
         "physicalnode logicalnode", true, 3));
     commandMap.put("exec unmapAll", new CommandDescription("", true, 1));
+  //TODO(Vibhor): Change this when we give the user ability to change the physicalNode throttling limit.
     commandMap.put("exec settlimit", new CommandDescription(
-        "physicalnode [chokeid] limit", true, 2));
+        "physicalnode chokeid limit", true, 3));
     // These actually work well and autocomplete the way we want!
     commandMap.put("submit config", new CommandDescription(
         "node 'source' 'sink'", true, 1));

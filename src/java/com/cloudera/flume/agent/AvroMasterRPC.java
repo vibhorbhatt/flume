@@ -133,10 +133,10 @@ public class AvroMasterRPC implements MasterRPC {
   throws IOException {
     try {
       ensureInitialized();
-      Map<Utf8, Integer> chokeMap = masterClient
-          .getChokeMap(new Utf8(physNode));
+      Map<CharSequence, Integer> chokeMap = masterClient
+          .getChokeMap(physNode);
       HashMap<String, Integer> newMap = new HashMap<String, Integer>();
-      for (Utf8 s : chokeMap.keySet()) {
+      for (CharSequence s : chokeMap.keySet()) {
         newMap.put(s.toString(), chokeMap.get(s));
       }
       return newMap;

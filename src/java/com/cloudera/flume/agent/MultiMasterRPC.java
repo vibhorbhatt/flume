@@ -263,10 +263,10 @@ public class MultiMasterRPC implements MasterRPC {
    * physical node. This limit puts an approximate upperbound on the number of
    * bytes which can be shipped accross a choke decorator.
    */
-  public HashMap<String, Integer> getChokeMap(final String physicalNode)
+  public Map<String, Integer> getChokeMap(final String physicalNode)
       throws IOException {
-    RPCRetryable<HashMap<String, Integer>> retry = new RPCRetryable<HashMap<String, Integer>>() {
-      public HashMap<String, Integer> doRPC() throws IOException {
+    RPCRetryable<Map<String, Integer>> retry = new RPCRetryable<Map<String, Integer>>() {
+      public Map<String, Integer> doRPC() throws IOException {
         return masterRPC.getChokeMap(physicalNode);
       }
     };

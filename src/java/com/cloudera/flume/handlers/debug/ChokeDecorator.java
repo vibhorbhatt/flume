@@ -25,6 +25,7 @@ import com.cloudera.flume.conf.SinkFactory.SinkDecoBuilder;
 import com.cloudera.flume.core.Event;
 import com.cloudera.flume.core.EventSink;
 import com.cloudera.flume.core.EventSinkDecorator;
+import com.google.common.base.Preconditions;
 
 /**
  * This decorator adds a the capabilty to Throttle the data going out of the
@@ -87,14 +88,9 @@ public class ChokeDecorator<S extends EventSink> extends EventSinkDecorator<S> {
       @Override
       public EventSinkDecorator<EventSink> build(Context context,
           String... argv) {
-        // If the user passes no argument for the choke decorator, then this
-        // choke does not belong to any choke-id level throttling, but it
-        // belongs to the physical level throttling.
-        String chokeID = "";
-        // If some argumet is passed, it is taken as the chokeID
-        if (argv.length > 0) {
-          chokeID = argv[0];
-        }
+        Preconditions.checkArgument(argv.length > 0,
+            "choke(chokeId)");
+        String chokeID = argv[0];
         return new ChokeDecorator<EventSink>(null, chokeID);
       }
     };

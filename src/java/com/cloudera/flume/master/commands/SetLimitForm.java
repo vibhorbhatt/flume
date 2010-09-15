@@ -23,7 +23,6 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 import com.cloudera.flume.master.Command;
-import com.cloudera.flume.master.CommandManager;
 import com.cloudera.flume.master.Execable;
 import com.cloudera.flume.master.FlumeMaster;
 import com.cloudera.flume.master.MasterExecException;
@@ -57,11 +56,14 @@ public class SetLimitForm {
    */
   public static Execable buildExecable() {
     return new Execable() {
+      // TODO(Vibhor): Once the PhySicalNodeThrottling patch is in, change the
+      // preconditions here and add the ability to get the physicalNode
+      // throttling limit.
       @Override
       public void exec(String[] args) throws MasterExecException, IOException {
         // first check the length of the arguments
-        Preconditions.checkArgument(args.length > 1,
-            "Usage: settlimit physicalNode [chokeID] limit");
+        Preconditions.checkArgument(args.length > 2,
+            "Usage: settlimit physicalNode chokeID limit");
 
         String physicalNodeName = args[0];
         // issue a polite warning if the physicalnode does not exist yet
@@ -70,23 +72,16 @@ public class SetLimitForm {
           LOG.warn("PhysicalNode: " + physicalNodeName + " not present yet!");
         }
 
-        String chokerName = "";
-        int limit;
-        // This is the index where we extract the limit from the arguments
-        int limitIndex = 1;
-
-        if (args.length > 2) {
-          limitIndex = 2;
-          chokerName = args[1];
-        }
-
+        int limit = 0;
+        String chokerName = args[1];
         try {
-          limit = Integer.parseInt(args[limitIndex]);
+          limit = Integer.parseInt(args[2]);
         } catch (NumberFormatException e) {
           LOG.error("Limit not given in the right format");
           throw new MasterExecException("Limit not given in the right format",
               e);
         }
+
         Preconditions.checkState(limit >= 0, "Limit has to be at least 0");
         // only works in memory!! not in zookeeper.
         FlumeMaster.getInstance().getSpecMan().addChokeLimit(physicalNodeName,

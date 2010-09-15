@@ -29,7 +29,7 @@ import com.cloudera.flume.core.EventSource;
 import com.cloudera.util.Clock;
 
 /**
- * A synthetic source that just creates random events of specified random size
+ * A synthetic source that just creates random events of random size
  * and returns them.
  * 
  * 'open' resets the source's seed and will generate essentially the same stream
@@ -39,17 +39,12 @@ public class SynthSourceRndSize extends EventSource.Base {
   final static Logger LOG = Logger
       .getLogger(SynthSourceRndSize.class.getName());
 
-  int size;
   final long total;
   final long seed;
   final Random rand;
   long count = 0;
   final int minBodySize ;
   final int maxBodySize;
-  // We resize(randomly) after producing resizeCount events.
-  // One can set this to 1 if we want to resize after every event.
-  final int resizeCount = 1000;
-
   public SynthSourceRndSize(long total, int lowLimit, int upLimit) {
     this(total, lowLimit, upLimit, Clock.unixTime());
 
@@ -61,36 +56,31 @@ public class SynthSourceRndSize extends EventSource.Base {
     this.minBodySize = minsize;
     this.maxBodySize = maxsize;
     this.total = count;
-    this.size = this.minBodySize
-        + this.rand.nextInt(this.maxBodySize - this.minBodySize);
   }
 
   @Override
   public void close() throws IOException {
-    LOG.info("closing SynthSourceRandSize(" + total + ", " + size + " )");
+    LOG.info("closing SynthSourceRandSize");
   }
 
   @Override
   public Event next() throws IOException {
     if (count >= total && total != 0)
       return null;// end marker if gotten to count
+
+    int size= this.minBodySize
+    + this.rand.nextInt(this.maxBodySize - this.minBodySize);
     count++;
     byte[] data = new byte[size];
     rand.nextBytes(data);
     Event e = new EventImpl(data);
     updateEventProcessingStats(e);
-    if (count % this.resizeCount == this.resizeCount - 1) {
-      // then we randomly set the
-      this.size = this.minBodySize
-          + this.rand.nextInt(this.maxBodySize - this.minBodySize);
-    }
     return e;
   }
 
   @Override
   public void open() throws IOException {
-    LOG.info("Resetting count and seed; openingSynthSource(" + total + ", "
-        + size + " )");
+    LOG.info("Resetting count and seed; openingSynthSourceRandSize");
     // resetting the seed
     count = 0;
     rand.setSeed(seed);

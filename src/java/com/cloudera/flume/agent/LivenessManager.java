@@ -30,7 +30,6 @@ import com.cloudera.flume.conf.FlumeConfiguration;
 import com.cloudera.flume.conf.FlumeSpecException;
 import com.cloudera.flume.conf.FlumeConfigData;
 import com.cloudera.flume.handlers.endtoend.AckListener.Empty;
-import com.cloudera.flume.master.FlumeMaster;
 import com.cloudera.util.Clock;
 import com.google.common.base.Preconditions;
 

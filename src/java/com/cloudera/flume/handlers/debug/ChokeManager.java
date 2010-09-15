@@ -19,10 +19,8 @@ package com.cloudera.flume.handlers.debug;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import com.sun.xml.internal.ws.util.RuntimeVersion;
-import com.sun.xml.internal.ws.util.Version;
 
 /**
  * Main throttling Logic is here. All the choke-decorators have to call a method
@@ -42,7 +40,12 @@ public class ChokeManager extends Thread {
 
   // maximum number of bytes allowed to be sent in the time quanta through a
   // physicalNode.
-  // In this current version this is not taken into the account yet.
+  /*
+   * TODO(Vibhor) : In the current version, we don't use this PhySicalNode
+   * limit, but a we are taking this value from the user, we should rectify this
+   * ASAP. This should be part of a future patch dealing with some good policy
+   * of dividing this physicalnodelimit between different chokes.
+   */
   private int physicalLimit;
 
   // this tells whether the ChokeManager is active or not
@@ -95,7 +98,7 @@ public class ChokeManager extends Thread {
    * manager. It gets the choke-d to limit mapping from the master and loads it
    * to idtoThrottleInfoMap.
    */
-  public void updateIdtoThrottleInfoMap(HashMap<String, Integer> newMap) {
+  public void updateIdtoThrottleInfoMap(Map<String, Integer> newMap) {
 
     rwl_idtoThrottleInfoMap.writeLock().lock();
     try {
@@ -153,7 +156,6 @@ public class ChokeManager extends Thread {
       try {
         for (ThrottleInfoData choke : this.idtoThrottleInfoMap.values()) {
           synchronized (choke) {
-            // choke.printState();
             choke.bucketFillup();
             choke.notifyAll();
           }
@@ -177,6 +179,7 @@ public class ChokeManager extends Thread {
    * off, i.e., more bytes than the maximum limit can be shipped.
    */
   public void spendTokens(String id, int numBytes) throws IOException {
+    //TODO(Vibhor): Change this when we implement physica-lnode-level throttling policy.
     rwl_idtoThrottleInfoMap.readLock().lock();
     try {
       // simple policy for now: if the chokeid is not there then simply return,
