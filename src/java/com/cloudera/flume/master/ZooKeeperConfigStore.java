@@ -554,6 +554,8 @@ public class ZooKeeperConfigStore extends ConfigStore implements Watcher {
    */
   @Override
   public void addChokeLimit(String physNode, String chokeID, int limit) {
+    // TODO Auto-generated method stub
+    // Have to add this zookeeper stuff
     LOG.error("addChoke at ZooKeeper not supported yet");
     throw new UnsupportedOperationException();
   }
