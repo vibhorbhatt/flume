@@ -112,8 +112,8 @@ public class LivenessManager {
       }
     }
     // Update the Chokeinformation for the ChokeManager
-    
-    FlumeNode.getInstance().getChokeManager().updateidtoThrottleInfoMap(
+
+    FlumeNode.getInstance().getChokeManager().updateIdtoThrottleInfoMap(
         master.getChokeMap(physNode));
 
     nodesman.decommissionAllBut(lns);

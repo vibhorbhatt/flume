@@ -53,7 +53,7 @@ public class ChokeDecorator<S extends EventSink> extends EventSinkDecorator<S> {
   public void append(Event e) throws IOException {
 
     try {
-      chokeMan.deleteItems(chokeId, e.getBody().length);
+      chokeMan.spendTokens(chokeId, e.getBody().length);
       super.append(e);
     } catch (Exception e1) {
       throw new IOException(e1.getMessage(), e1);

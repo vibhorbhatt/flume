@@ -73,14 +73,14 @@ public class TestChokeMapping {
 
     // This method updatetoThrottleInfoMap is the same method call in the
     // checkLogicalNodes() in the LivenessManager
-    node.getChokeManager().updateidtoThrottleInfoMap(
+    node.getChokeManager().updateIdtoThrottleInfoMap(
         (HashMap<String, Integer>) master.getSpecMan().getChokeMap(
             node.getPhysicalNodeName()));
 
     if (!node.getChokeManager().isChokeId("bar")) {
-      LOG.info("TestChokeMapping Failed!!");
+      LOG.error("TestChokeMapping Failed!!");
       LOG
-          .info("The ChokeID 'bar' did not get registered with the ChokeManager!!");
+          .error("The ChokeID 'bar' did not get registered with the ChokeManager!!");
       fail("TestChokeMapping Failed!!");
     }
     LOG.info("TestChokeMapping successful!!");

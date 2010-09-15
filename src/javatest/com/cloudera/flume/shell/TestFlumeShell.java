@@ -19,9 +19,6 @@
 package com.cloudera.flume.shell;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 
 import org.apache.thrift.transport.TTransportException;
@@ -105,7 +102,7 @@ public class TestFlumeShell extends SetupMasterTestEnv {
   /**
    * Create a master, connect via shell, create some logical nodes, spawn them,
    * and see if the output looks as expected.
-   *
+   * 
    * @throws InterruptedException
    */
   @Test
@@ -113,9 +110,8 @@ public class TestFlumeShell extends SetupMasterTestEnv {
     FlumeShell sh = new FlumeShell();
     long retval;
 
-    retval = sh
-        .executeLine("connect localhost:"
-            + FlumeConfiguration.DEFAULT_ADMIN_PORT);
+    retval = sh.executeLine("connect localhost:"
+        + FlumeConfiguration.DEFAULT_ADMIN_PORT);
     assertEquals(0, retval);
 
     retval = sh.executeLine("getmappings");
@@ -125,9 +121,11 @@ public class TestFlumeShell extends SetupMasterTestEnv {
 
     Clock.sleep(1000);
 
-    retval = sh.executeLine("exec config foo 'tail(\"/var/log/messages\")' 'console(\"avrojson\")'");
+    retval = sh
+        .executeLine("exec config foo 'tail(\"/var/log/messages\")' 'console(\"avrojson\")'");
     assertEquals(0, retval);
-    retval = sh.executeLine("exec config bar 'tail(\"/var/log/messages2\")' 'console(\"avrojson\")'");
+    retval = sh
+        .executeLine("exec config bar 'tail(\"/var/log/messages2\")' 'console(\"avrojson\")'");
     assertEquals(0, retval);
 
     retval = sh.executeLine("exec spawn localhost foo");
@@ -238,10 +236,6 @@ public class TestFlumeShell extends SetupMasterTestEnv {
     NodeState idle = NodeState.IDLE;
     assertEquals(status, idle);
     // TODO: uncomment when there is a clean way to get at the reportable
-    // AccumulatorSink cnt = (AccumulatorSink)
-    // ReportManager.get().getReportable(
-    // "count");
-    // assertEquals(100, cnt.getCount());
     n.stop();
   }
 

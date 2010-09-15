@@ -61,7 +61,7 @@ public class SetLimitForm {
       public void exec(String[] args) throws MasterExecException, IOException {
         // first check the length of the arguments
         Preconditions.checkArgument(args.length > 1,
-            "Usage: settlimit physicalNode chokeID (optional) limit");
+            "Usage: settlimit physicalNode [chokeID] limit");
 
         String physicalNodeName = args[0];
         // issue a polite warning if the physicalnode does not exist yet
@@ -87,7 +87,7 @@ public class SetLimitForm {
           throw new MasterExecException("Limit not given in the right format",
               e);
         }
-        Preconditions.checkState(limit >= 0, "Limit has to be atleast 0");
+        Preconditions.checkState(limit >= 0, "Limit has to be at least 0");
         // only works in memory!! not in zookeeper.
         FlumeMaster.getInstance().getSpecMan().addChokeLimit(physicalNodeName,
             chokerName, limit);

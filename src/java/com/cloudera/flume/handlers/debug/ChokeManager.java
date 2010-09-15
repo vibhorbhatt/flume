@@ -47,7 +47,7 @@ public class ChokeManager extends Thread {
 
   // this tells whether the ChokeManager is active or not
   private volatile boolean active = false;
-  private final int payLoadheadrsize = 50;
+  private int payLoadheadrsize = 50;
   private final HashMap<String, ThrottleInfoData> idtoThrottleInfoMap = new HashMap<String, ThrottleInfoData>();
 
   // This is the reader-writer lock on the idtoThrottleInfoMap. Whever it is
@@ -63,12 +63,22 @@ public class ChokeManager extends Thread {
   }
 
   /**
+   * this method is used to change the size of setPayLoadHeaderSize.
+   */
+  public void setPayLoadHeaderSize(int size) throws IllegalArgumentException {
+    if (size < 0) {
+      throw new IllegalArgumentException("PayloadHeaderSize cannot be negative");
+    }
+    this.payLoadheadrsize = size;
+  }
+
+  /**
    * This method is the only method used to add entries to the chokeMap
    * (idtoThrottleInfoMap). This method also assumes that a write-lock has been
    * already obtained on the Reader-Writer lock on ChokeMap
    * (rwl_idtoThrottleInfoMap).
    */
-  public void register(String throttleID, int limit) {
+  private void register(String throttleID, int limit) {
 
     if (idtoThrottleInfoMap.get(throttleID) == null) {
       idtoThrottleInfoMap.put(throttleID, new ThrottleInfoData(limit,
@@ -85,7 +95,7 @@ public class ChokeManager extends Thread {
    * manager. It gets the choke-d to limit mapping from the master and loads it
    * to idtoThrottleInfoMap.
    */
-  public void updateidtoThrottleInfoMap(HashMap<String, Integer> newMap) {
+  public void updateIdtoThrottleInfoMap(HashMap<String, Integer> newMap) {
 
     rwl_idtoThrottleInfoMap.writeLock().lock();
     try {
@@ -166,20 +176,19 @@ public class ChokeManager extends Thread {
    * using the same choke and the message size is huge, accuracy can be thrown
    * off, i.e., more bytes than the maximum limit can be shipped.
    */
-  public void deleteItems(String id, int numBytes) throws IOException {
+  public void spendTokens(String id, int numBytes) throws IOException {
     rwl_idtoThrottleInfoMap.readLock().lock();
     try {
       // simple policy for now: if the chokeid is not there then simply return,
       // essentially no throttling with an invalid chokeID.
       if (this.isChokeId(id) != false) {
-
         int loopCount = 0;
-        synchronized (this.idtoThrottleInfoMap.get(id)) {
+        ThrottleInfoData myTinfoData = this.idtoThrottleInfoMap.get(id);
+        synchronized (myTinfoData) {
           while (this.active
-              && !this.idtoThrottleInfoMap.get(id).bucketCompare(
-                  numBytes + this.payLoadheadrsize)) {
+              && !myTinfoData.bucketCompare(numBytes + this.payLoadheadrsize)) {
             try {
-              this.idtoThrottleInfoMap.get(id).wait(ChokeManager.timeQuanta);
+              myTinfoData.wait(ChokeManager.timeQuanta);
             } catch (InterruptedException e) {
               Thread.currentThread().interrupt();
               throw new IOException(e);
@@ -187,8 +196,7 @@ public class ChokeManager extends Thread {
             if (loopCount++ >= 2) // just wait twice to avoid starvation
               break;
           }
-          this.idtoThrottleInfoMap.get(id).removeTokens(
-              numBytes + this.payLoadheadrsize);
+          myTinfoData.removeTokens(numBytes + this.payLoadheadrsize);
           // We are not taking the physical limit into account, that's policy
           // stuff and we'll figure this out later
         }
