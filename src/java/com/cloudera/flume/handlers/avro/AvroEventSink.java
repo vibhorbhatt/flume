@@ -47,7 +47,7 @@ public class AvroEventSink extends EventSink.Base {
 
   @Override
   public void append(Event e) throws IOException {
-    // convert the flumeEvent to avroevent
+    // convert the flumeEvent to AvroEevent
     AvroFlumeEvent afe = AvroEventAdaptor.convert(e);
     // Make sure client side is initialized.
     this.ensureInitialized();
@@ -100,7 +100,7 @@ public class AvroEventSink extends EventSink.Base {
   }
 
   /**
-   * Just for testting.
+   * Just for testing.
    */
   public static void main(String argv[]) throws IOException {
     FlumeConfiguration conf = FlumeConfiguration.get();
@@ -136,33 +136,5 @@ public class AvroEventSink extends EventSink.Base {
     } catch (Exception e) {
       e.printStackTrace();
     }
-  }
-
-  /*
-   * These methods can be deleted now that we have a wrapper classes
-   * RpcSource/Sink with the builder into it. Left it for the deprecated
-   * sources/sinks.
-   */
-  public static SinkBuilder builder() {
-    return new SinkBuilder() {
-      @Override
-      public EventSink build(Context context, String... args) {
-        if (args.length > 2) {
-          throw new IllegalArgumentException(
-              "usage: avro([hostname, [portno]]) ");
-        }
-        String host = FlumeConfiguration.get().getCollectorHost();
-        int port = FlumeConfiguration.get().getCollectorPort();
-        if (args.length >= 1) {
-          host = args[0];
-        }
-
-        if (args.length >= 2) {
-          port = Integer.parseInt(args[1]);
-        }
-        return new AvroEventSink(host, port);
-      }
-    };
-
   }
 }

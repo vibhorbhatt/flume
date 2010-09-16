@@ -221,7 +221,7 @@ public class ThriftEventSource extends EventSource.Base {
 
   /*
    * These methods can be deleted now that we have a wrapper classes RpcSource/Sink
-   * with the builder into it. Left it for the deprecated sources/sinks.
+   * with the builder into it. Left it for the depreciated Thriftsource/Thriftsinks.
    */
   public static SourceBuilder builder() {
     return new SourceBuilder() {

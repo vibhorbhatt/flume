@@ -130,8 +130,9 @@ public class AvroEventSource extends EventSource.Base {
         // convert AvroEvent evt -> e
         AvroEventAdaptor adapt = new AvroEventAdaptor(evt);
         try {
-          Event temp=adapt.toFlumeEvent();
-          System.out.println("Hi I am in the append : "+ new String(temp.getBody()));
+          Event temp = adapt.toFlumeEvent();
+          System.out.println("Hi I am in the append : "
+              + new String(temp.getBody()));
           enqueue(adapt.toFlumeEvent());
         } catch (IOException e1) {
           // TODO Auto-generated catch block
@@ -206,23 +207,5 @@ public class AvroEventSource extends EventSource.Base {
       throw new IOException("Waiting for queue element was interupted! "
           + e.getMessage(), e);
     }
-  }
-
-  /*
-   * These methods can be deleted now that we have a wrapper classes
-   * RpcSource/Sink with the builder into it. Left it for the deprecated
-   * sources/sinks.
-   */
-  public static SourceBuilder builder() {
-    return new SourceBuilder() {
-      @Override
-      public EventSource build(String... argv) {
-        Preconditions.checkArgument(argv.length == 1, "usage: tSource(port)");
-
-        int port = Integer.parseInt(argv[0]);
-        return new AvroEventSource(port);
-      }
-
-    };
   }
 }
