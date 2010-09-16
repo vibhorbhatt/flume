@@ -139,8 +139,10 @@ public class FlumeShell {
     commandMap.put("exec refreshAll", new CommandDescription("", true, 1));
     commandMap.put("exec noop", new CommandDescription(
         "[delaymillis (no arg means no wait)]", true, 1));
-    commandMap.put("exec spawn", new CommandDescription(
-        "physicalnode logicalnode (synonym for exec map. deprecated.)", true, 3));
+    commandMap.put("exec spawn",
+        new CommandDescription(
+            "physicalnode logicalnode (synonym for exec map. deprecated.)",
+            true, 3));
     commandMap.put("exec map", new CommandDescription(
         "physicalnode logicalnode", true, 3));
     commandMap.put("exec decommission", new CommandDescription("logicalnode",
@@ -148,8 +150,9 @@ public class FlumeShell {
     commandMap.put("exec unmap", new CommandDescription(
         "physicalnode logicalnode", true, 3));
     commandMap.put("exec unmapAll", new CommandDescription("", true, 1));
-  //TODO(Vibhor): Change this when we give the user ability to change the physicalNode throttling limit.
-    commandMap.put("exec settlimit", new CommandDescription(
+    // TODO(Vibhor): Change this when we give the user ability to change the
+    // physicalNode throttling limit.
+    commandMap.put("exec setChokeLimit", new CommandDescription(
         "physicalnode chokeid limit", true, 3));
     // These actually work well and autocomplete the way we want!
     commandMap.put("submit config", new CommandDescription(
@@ -160,7 +163,8 @@ public class FlumeShell {
     commandMap.put("submit refreshAll", new CommandDescription("", true, 1));
     commandMap.put("submit noop", new CommandDescription("", true, 1));
     commandMap.put("submit spawn", new CommandDescription(
-        "physicalnode logicalnode (synonym for submit map. deprecated.)", true, 3));
+        "physicalnode logicalnode (synonym for submit map. deprecated.)", true,
+        3));
     commandMap.put("submit map", new CommandDescription(
         "physicalnode logicalnode", true, 3));
     commandMap.put("submit decommission", new CommandDescription("logicalnode",

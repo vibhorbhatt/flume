@@ -29,10 +29,10 @@ import com.cloudera.flume.master.MasterExecException;
 import com.google.common.base.Preconditions;
 
 /**
- * This implements the "settlimit" command
+ * This implements the "setChokeLimit" command
  */
-public class SetLimitForm {
-  final static Logger LOG = Logger.getLogger(SetLimitForm.class);
+public class SetChokeLimitForm {
+  final static Logger LOG = Logger.getLogger(SetChokeLimitForm.class);
   String logicalNode;
 
   public String getLogicalNode() {
@@ -48,7 +48,7 @@ public class SetLimitForm {
    */
   public Command toCommand() {
     String[] args = { "physicalnode", "chokeID", "limit" };
-    return new Command("settlimit", args);
+    return new Command("setChokeLimit", args);
   }
 
   /**
@@ -56,14 +56,14 @@ public class SetLimitForm {
    */
   public static Execable buildExecable() {
     return new Execable() {
-      // TODO(Vibhor): Once the PhySicalNodeThrottling patch is in, change the
+      // TODO(Vibhor): Once the PhysicalNodeThrottling patch is in, change the
       // preconditions here and add the ability to get the physicalNode
       // throttling limit.
       @Override
       public void exec(String[] args) throws MasterExecException, IOException {
         // first check the length of the arguments
         Preconditions.checkArgument(args.length > 2,
-            "Usage: settlimit physicalNode chokeID limit");
+            "Usage: setChokeLimit physicalNode chokeID limit");
 
         String physicalNodeName = args[0];
         // issue a polite warning if the physicalnode does not exist yet

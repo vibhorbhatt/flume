@@ -29,8 +29,8 @@ import com.cloudera.flume.core.EventSource;
 import com.cloudera.util.Clock;
 
 /**
- * A synthetic source that just creates random events of random size
- * and returns them.
+ * A synthetic source that just creates random events of random size and returns
+ * them.
  * 
  * 'open' resets the source's seed and will generate essentially the same stream
  * of events.
@@ -43,8 +43,9 @@ public class SynthSourceRndSize extends EventSource.Base {
   final long seed;
   final Random rand;
   long count = 0;
-  final int minBodySize ;
+  final int minBodySize;
   final int maxBodySize;
+
   public SynthSourceRndSize(long total, int lowLimit, int upLimit) {
     this(total, lowLimit, upLimit, Clock.unixTime());
 
@@ -52,7 +53,7 @@ public class SynthSourceRndSize extends EventSource.Base {
 
   public SynthSourceRndSize(long total, int minsize, int maxsize, long seed) {
     this.rand = new Random(seed);
-    this.seed=seed;
+    this.seed = seed;
     this.minBodySize = minsize;
     this.maxBodySize = maxsize;
     this.total = count;
@@ -68,8 +69,8 @@ public class SynthSourceRndSize extends EventSource.Base {
     if (count >= total && total != 0)
       return null;// end marker if gotten to count
 
-    int size= this.minBodySize
-    + this.rand.nextInt(this.maxBodySize - this.minBodySize);
+    int size = this.minBodySize
+        + this.rand.nextInt(this.maxBodySize - this.minBodySize);
     count++;
     byte[] data = new byte[size];
     rand.nextBytes(data);
@@ -91,22 +92,18 @@ public class SynthSourceRndSize extends EventSource.Base {
       @Override
       public EventSource build(String... argv) {
         int minSize = 0;
-        int maxSize=10;
+        int maxSize = 10;
         long total = 0;
-        
+
         if (argv.length != 3) {
           throw new IllegalArgumentException(
               "usage: synthrndsize(count=0, minsize=0, maxsize=10) // count=0 infinite");
         }
-        
         total = Long.parseLong(argv[0]);
         minSize = Integer.parseInt(argv[1]);
-        maxSize= Integer.parseInt(argv[2]);
-        
+        maxSize = Integer.parseInt(argv[2]);
         return new SynthSourceRndSize(total, minSize, maxSize);
       }
-
     };
   }
-
 }

@@ -62,11 +62,11 @@ public class TestFlumeShell extends SetupMasterTestEnv {
   }
 
   /**
-   * Start a master, connect to it via the shell, and then issue a settlimit and
+   * Start a master, connect to it via the shell, and then issue a setChokeLimit and
    * make sure the chokeMap at the master is updated.
    */
   @Test
-  public void testSettlimit() throws InterruptedException, TTransportException,
+  public void testSetChokeLimit() throws InterruptedException, TTransportException,
       IOException {
 
     FlumeShell sh = new FlumeShell();
@@ -74,7 +74,7 @@ public class TestFlumeShell extends SetupMasterTestEnv {
     sh
         .executeLine("connect localhost:"
             + FlumeConfiguration.DEFAULT_ADMIN_PORT);
-    sh.executeLine("exec settlimit physNode choke 786");
+    sh.executeLine("exec setChokeLimit physNode choke 786");
     Clock.sleep(250);
     assertEquals(786, flumeMaster.getSpecMan().getChokeMap("physNode").get(
         "choke").intValue());

@@ -24,14 +24,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
-
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
-
 import com.cloudera.flume.core.Event;
-import com.cloudera.flume.core.EventImpl;
 import com.cloudera.flume.core.EventSink;
+import com.cloudera.flume.core.connector.DirectDriver;
+import com.cloudera.flume.reporter.ReportEvent;
 
 /**
  * Demonstrates basic throttling works within some error-tolerance. There are
@@ -49,7 +48,7 @@ public class TestChokeDecos {
   final long testTime = 5000; // in millisecs
 
   // number of drivers created for the testing
-  final int numFakeDrivers = 50;
+  final int numDrivers = 50;
 
   // here we set the limits for the minimum and maximum throttle rates in KB/sec
   int minTlimit = 500;
@@ -58,10 +57,15 @@ public class TestChokeDecos {
   int minMsgSize = 50;
   int maxMsgSize = 30000;
 
-  // Error tolerance constants, these ratios are the max and min limits set on
-  // the following quantity: MaxBytes allowed/Bytes Actually shipped.
-  double highErrorLimit = 1.5;
-  double lowErrorLimit = .8;
+  /*
+   * Error tolerance constants, these ratios are the max and min limits set on
+   * the following quantity: MaxBytes allowed/Bytes Actually shipped. Note that
+   * the error on the upperbound is much higher than the lower, this is because
+   * it is possible that the driver threads don't get scheduled often enough to
+   * ship bytes close to the maximum limits.
+   */
+  double highErrorLimit = 5;
+  double lowErrorLimit = .5;
 
   @Before
   public void setup() {
@@ -73,94 +77,20 @@ public class TestChokeDecos {
    * book-keeping the number of bytes shipped through it.
    */
   class TestChoke<S extends EventSink> extends ChokeDecorator<S> {
-    private long numBytesShipped = 0;
-    private final ChokeManager chokeMan;
 
-    public TestChoke(S s, String chokeId, ChokeManager cman) {
-      super(s, chokeId);
-      this.chokeMan = cman;
+    public TestChoke(S s, String tId) {
+      super(s, tId);
     }
 
-    /**
+    /*
      * We are overriding this because the method in ChokeManager calls
      * super.append() and we want to avoid this as the higher-level sink is not
      * initialized. In this method we just eliminate that call.
      */
     @Override
     public void append(Event e) throws IOException {
-      try {
-        chokeMan.spendTokens(chokeId, e.getBody().length);
-      } catch (Exception e1) {
-        throw new IOException(e1.getMessage(), e1);
-      }
-    }
-
-    public synchronized void updateBytesCount(int numBytes) {
-      // add the payload headersize beause the same is added in the deleteitems
-      // of the ChokeManager
-      numBytesShipped += numBytes;
-    }
-
-    /**
-     *This method returns the total number of bytes shipped accross the choke
-     * decorator.
-     */
-    public synchronized long getByteCount() {
-      return numBytesShipped;
-    }
-  }
-
-  /**
-   * This class is used for emulating a DirectDriver. This essentially runs the
-   * continous loop of generating a random length string and calling an append
-   * on a choke 'myChoke' where 'myChoke' is passed to this driver through the
-   * constructor.
-   * 
-   */
-  class FakeDriver extends Thread {
-    TestChoke<EventSink> myChoke;
-    private volatile boolean active = false;
-
-    public FakeDriver(TestChoke testChoke) {
-      this.myChoke = testChoke;
-    }
-
-    /*
-     * This is simulating the main loop of the DirectDriver thread.
-     */
-    @Override
-    public void run() {
-      active = true;
-      int i = 0, loopcount = 0;
-      // We will create the random length string here. The
-      // length of the string is in the range [minMsgSize, maxMsgSize].
-
-      byte[] data = new byte[rand.nextInt(maxMsgSize - minMsgSize)];
-      rand.nextBytes(data);
-      EventImpl eI = new EventImpl(data);
-
-      while (active) {
-        // From time to time we change the length of the string. If we do it
-        // very frequently then it throws us off from the target,
-        // we don't produce the data at speeds close to the max-limit.
-        if ((++loopcount) % 1000 == 999) {
-          data = new byte[rand.nextInt(maxMsgSize - minMsgSize)];
-          rand.nextBytes(data);
-          eI = new EventImpl(data);
-        }
-        // now we call the append on the choke
-        try {
-          myChoke.append(eI);
-        } catch (IOException e) {
-          LOG.error("Exception thrown: " + e.getMessage());
-        }
-        // update the bytecount on this ChokeId
-        myChoke.updateBytesCount(eI.getBody().length);
-      }
-    }
-
-    public void halt() {
-      active = false;
+      testChokeMan.spendTokens(chokeId, e.getBody().length);
+      updateAppendStats(e);
     }
   }
 
@@ -173,9 +103,9 @@ public class TestChokeDecos {
    * what we expect.
    */
   @Test
-  public void runInvidualChokeTest() throws InterruptedException {
+  public void runInvidualChokeTest() throws InterruptedException, IOException {
     // number of chokes is equal to the number of drivers
-    int numChokes = numFakeDrivers;
+    int numChokes = numDrivers;
     LOG.info("Setting up Individual Test");
     // create some chokeIDs with random limit in the range specified
     for (int i = 0; i < numChokes; i++) {
@@ -186,45 +116,46 @@ public class TestChokeDecos {
           + rand.nextInt(maxTlimit - minTlimit));
     }
     // update the chokemap with these chokes
-    testChokeMan.updateIdtoThrottleInfoMap(chokeMap);
+    testChokeMan.updateChokeLimitMap(chokeMap);
     // now we create bunch of chokes
+
     TestChoke[] tchokeArray = new TestChoke[numChokes];
     for (int i = 0; i < numChokes; i++) {
       // different chokes are created with their ids coming from the range "0",
       // "1", "2", "3"..."numChokes"
-      tchokeArray[i] = new TestChoke<EventSink>(null, Integer.toString(i),
-          testChokeMan);
+      tchokeArray[i] = new TestChoke<EventSink>(null, Integer.toString(i));
     }
     // one driver for each choke
-    FakeDriver[] fakeDriverArray = new FakeDriver[numFakeDrivers];
-    for (int i = 0; i < numFakeDrivers; i++) {
+    DirectDriver[] directDriverArray = new DirectDriver[numDrivers];
+
+    for (int i = 0; i < numDrivers; i++) {
       // Driver i is mapped to ith choke, simple 1 to 1 mapping.
-      fakeDriverArray[i] = new FakeDriver(tchokeArray[i]);
+      directDriverArray[i] = new DirectDriver("TestDriver" + i,
+          new SynthSourceRndSize(0, minMsgSize, maxMsgSize), tchokeArray[i]);
     }
 
     // check if all the ChokeIDs are present in the chokeMap
     LOG.info("Running the Individual Test Now!");
-    for (int i = 0; i < numFakeDrivers; i++) {
+    for (int i = 0; i < numDrivers; i++) {
       if (!testChokeMan.isChokeId(Integer.toString(i))) {
         LOG.error("ChokeID " + Integer.toString(i) + "not present");
-        fail();
+        fail("ChokeID " + Integer.toString(i) + "not present");
       }
     }
     // Now we start the test.
     // Start the ChokeManager.
     testChokeMan.start();
-    for (FakeDriver f : fakeDriverArray) {
-      f.start();
+    for (DirectDriver d : directDriverArray) {
+      d.start();
     }
     // stop for the allotted time period
     Thread.sleep(testTime);
 
     // Stop everything!
-    for (FakeDriver f : fakeDriverArray) {
-      f.halt();
+    for (DirectDriver d : directDriverArray) {
+      d.stop();
     }
     testChokeMan.halt();
-
     // Now do the error evaluation, see how many bits were actually shipped.
     double errorRatio = 1.0;
 
@@ -233,9 +164,12 @@ public class TestChokeDecos {
       // Where Max= Maximum bytes which should have been shipped based on the
       // limit on this choke, and actual= bytes that were actually shipped.
       errorRatio = ((double) (chokeMap.get(t.getChokeId()) * testTime))
-          / (double) (t.getByteCount());
+          / (double) (t.getReport().getLongMetric("number of bytes"));
 
       LOG.info("ChokeID: " + t.getChokeId() + ", error-ratio: " + errorRatio);
+      ReportEvent r = t.getReport();
+
+      LOG.info(" events :" + r.getLongMetric("number of events"));
       // Test if the error ratio is in the limit we want.
       assertFalse((errorRatio > this.highErrorLimit || errorRatio < this.lowErrorLimit));
     }
@@ -250,12 +184,10 @@ public class TestChokeDecos {
    */
 
   @Test
-  public void runCollectiveChokeTest() throws InterruptedException {
+  public void runCollectiveChokeTest() throws InterruptedException, IOException {
     // Few Chokes
     int numChokes = 5;
-
     LOG.info("Setting up Collective Test");
-
     // create chokeIDs with random limit range
     for (int i = 0; i < numChokes; i++) {
       // different chokesIds are created with their ids coming from the range
@@ -264,39 +196,40 @@ public class TestChokeDecos {
       chokeMap.put(Integer.toString(i), minTlimit
           + rand.nextInt(maxTlimit - minTlimit));
     }
-
     // update the chokemap with these chokes
-    testChokeMan.updateIdtoThrottleInfoMap(chokeMap);
+    testChokeMan.updateChokeLimitMap(chokeMap);
     // Initialize the chokes appropriately.
     TestChoke[] tchokeArray = new TestChoke[numChokes];
     for (int i = 0; i < numChokes; i++) {
       // different chokes are created with their ids coming from the range "0",
       // "1", "2", "3"..."numFakeDrivers"
-      tchokeArray[i] = new TestChoke<EventSink>(null, Integer.toString(i),
-          testChokeMan);
+      tchokeArray[i] = new TestChoke<EventSink>(null, Integer.toString(i));
     }
 
     // As we are assigning the chokes to drivers at random, there is a chance
     // that not all initialized chokes are assigned to some driver. So the
     // number of bytes shipped on these chokes will be zero, which will throw us
     // off in the error evaluation. For this reason we add all the chokes
-    // assigned tosome driver in a set, and do error evaluation only on those
+    // assigned to some driver in a set, and do error evaluation only on those
     // chokes.
 
     // chokesUsed is the set of chokes assigned to some driver.
     Set<TestChoke<EventSink>> chokesUsed = new HashSet<TestChoke<EventSink>>();
 
-    FakeDriver[] fakeDriverArray = new FakeDriver[numFakeDrivers];
+    DirectDriver[] directDriverArray = new DirectDriver[numDrivers];
     // Each driver is randomly assigned to a random choke in the range
     // [0,numChokes)
     int randChokeIndex = 0;
-    for (int i = 0; i < numFakeDrivers; i++) {
+    for (int i = 0; i < numDrivers; i++) {
       randChokeIndex = rand.nextInt(numChokes);
-      fakeDriverArray[i] = new FakeDriver(tchokeArray[randChokeIndex]);
+      // DirectDriverArray[i] = new DirectDriver(new SynthSourceRndSize(0,
+      // minMsgSize, maxMsgSize), tchokeArray[randChokeIndex]);
+      directDriverArray[i] = new DirectDriver(new SynthSourceRndSize(0,
+          minMsgSize, maxMsgSize), tchokeArray[randChokeIndex]);
+
       // adds this choke to the set of chokesUsed
       chokesUsed.add(tchokeArray[randChokeIndex]);
     }
-
     // check if all the ChokeIDs are present
     LOG.info("Running the Collective Test Now!");
     for (TestChoke<EventSink> t : chokesUsed) {
@@ -309,14 +242,14 @@ public class TestChokeDecos {
     // Now we start the test.
     // start the ChokeManager
     testChokeMan.start();
-    for (FakeDriver f : fakeDriverArray) {
+    for (DirectDriver f : directDriverArray) {
       f.start();
     }
+    // stop for the allotted time period
     Thread.sleep(testTime);
-
     // Stop everything!
-    for (FakeDriver f : fakeDriverArray) {
-      f.halt();
+    for (DirectDriver f : directDriverArray) {
+      f.stop();
     }
     testChokeMan.halt();
     // now do the error evaluation
@@ -327,7 +260,7 @@ public class TestChokeDecos {
       // Where Max= Maximum bytes which should have been shipped based on the
       // limit on this choke, and actual= bytes that were actually shipped.
       errorRatio = ((double) (chokeMap.get(t.getChokeId()) * testTime))
-          / (double) (t.getByteCount());
+          / (double) (t.getReport().getLongMetric("number of bytes"));
 
       LOG.info("ChokeID: " + t.getChokeId() + ", error-ratio: " + errorRatio);
       // Test if the error ratio is in the limit we want.

@@ -15,26 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/**
- * This class contains the basic data elements required to throttle a ChokeDecorators.  
- * Essentially one single object is created for for every valid chokeID.
- */
 package com.cloudera.flume.handlers.debug;
 
 /**
- * This class contains the basic data elements for a Choke and and simple
+ * This class contains the basic data elements of a ChokeDecorator and simple
  * operations to perform on that data.
  */
-public class ThrottleInfoData {
+public class ChokeInfoData {
   private int max = Integer.MAX_VALUE;
   private int bucket = 0;
   private String chokeID;
 
   /**
-   *This costructor sets the limit on the Choke.
+   *This constructor sets the limit on the Choke.
    */
-  public ThrottleInfoData(int limit, String id) {
+  public ChokeInfoData(int limit, String id) {
     max = limit * ChokeManager.timeQuanta;
     chokeID = id;
   }

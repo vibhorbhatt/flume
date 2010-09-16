@@ -24,7 +24,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Main throttling Logic is here. All the choke-decorators have to call a method
- * (deleteItems) of this class before calling the apend of their super class.
+ * (deleteItems) of this class before calling the append of their super class.
  * And in that method a thread is blocked if the Throttling limit either at the
  * PhysicalNode level or the choke-id level is reached. In this version, I've
  * ignored the physicalNode limit.
@@ -33,7 +33,7 @@ public class ChokeManager extends Thread {
 
   // Time quanta in millisecs. It is a constant right now, we can change this
   // later. The main thread of the Chokemanager fills up the buckets
-  // correcponding to different choke-ids and the physical node after this time
+  // corresponding to different choke-ids and the physical node after this time
   // quanta.
 
   public static final int timeQuanta = 100;
@@ -41,66 +41,65 @@ public class ChokeManager extends Thread {
   // maximum number of bytes allowed to be sent in the time quanta through a
   // physicalNode.
   /*
-   * TODO(Vibhor) : In the current version, we don't use this PhySicalNode
+   * TODO(Vibhor) : In the current version, we don't use this physicalnode
    * limit, but a we are taking this value from the user, we should rectify this
    * ASAP. This should be part of a future patch dealing with some good policy
-   * of dividing this physicalnodelimit between different chokes.
+   * of dividing this physicalnode limit between different chokes.
    */
   private int physicalLimit;
 
   // this tells whether the ChokeManager is active or not
   private volatile boolean active = false;
   private int payLoadheadrsize = 50;
-  private final HashMap<String, ThrottleInfoData> idtoThrottleInfoMap = new HashMap<String, ThrottleInfoData>();
+  private final HashMap<String, ChokeInfoData> chokeInfoMap = new HashMap<String, ChokeInfoData>();
 
-  // This is the reader-writer lock on the idtoThrottleInfoMap. Whever it is
+  // This is the reader-writer lock on the chokeInfoMap. Whenever it is
   // being updated, a writelock has to be taken on it, and when someone is just
   // reading the map, readlock on it is sufficient.
 
-  ReentrantReadWriteLock rwl_idtoThrottleInfoMap;
+  ReentrantReadWriteLock rwlChokeInfoMap;
 
   public ChokeManager() {
     super("ChokeManager");
-    rwl_idtoThrottleInfoMap = new ReentrantReadWriteLock();
+    rwlChokeInfoMap = new ReentrantReadWriteLock();
     this.physicalLimit = Integer.MAX_VALUE;
   }
 
   /**
-   * this method is used to change the size of setPayLoadHeaderSize.
+   * This method is used to change the size of setPayLoadHeaderSize.
    */
   public void setPayLoadHeaderSize(int size) throws IllegalArgumentException {
     if (size < 0) {
-      throw new IllegalArgumentException("PayloadHeaderSize cannot be negative");
+      throw new IllegalArgumentException(
+          "Payload header size cannot be negative");
     }
     this.payLoadheadrsize = size;
   }
 
   /**
    * This method is the only method used to add entries to the chokeMap
-   * (idtoThrottleInfoMap). This method also assumes that a write-lock has been
-   * already obtained on the Reader-Writer lock on ChokeMap
-   * (rwl_idtoThrottleInfoMap).
+   * (chokeInfoMap). This method also assumes that a write-lock has been already
+   * obtained on the Reader-Writer lock on ChokeMap (rwlChokeInfoMap).
    */
-  private void register(String throttleID, int limit) {
+  private void register(String chokeID, int limit) {
 
-    if (idtoThrottleInfoMap.get(throttleID) == null) {
-      idtoThrottleInfoMap.put(throttleID, new ThrottleInfoData(limit,
-          throttleID));
+    if (chokeInfoMap.get(chokeID) == null) {
+      chokeInfoMap.put(chokeID, new ChokeInfoData(limit, chokeID));
     }
     // set a new limit if the ID was already in use
     else {
-      this.idtoThrottleInfoMap.get(throttleID).setMaxLimit(limit);
+      this.chokeInfoMap.get(chokeID).setMaxLimit(limit);
     }
   }
 
   /**
-   * This method is called in the CheckLogicalNodes method of the livesness
+   * This method is called in the CheckLogicalNodes method of the Liveness
    * manager. It gets the choke-d to limit mapping from the master and loads it
-   * to idtoThrottleInfoMap.
+   * to idtoChokeInfoMap.
    */
-  public void updateIdtoThrottleInfoMap(Map<String, Integer> newMap) {
+  public void updateChokeLimitMap(Map<String, Integer> newMap) {
 
-    rwl_idtoThrottleInfoMap.writeLock().lock();
+    rwlChokeInfoMap.writeLock().lock();
     try {
       for (String s : newMap.keySet()) {
         register(s, newMap.get(s));
@@ -115,7 +114,7 @@ public class ChokeManager extends Thread {
         this.physicalLimit = newMap.get("");
       }
     } finally {
-      rwl_idtoThrottleInfoMap.writeLock().unlock();
+      rwlChokeInfoMap.writeLock().unlock();
     }
 
   }
@@ -126,11 +125,11 @@ public class ChokeManager extends Thread {
    */
   public boolean isChokeId(String ID) {
     Boolean res;
-    rwl_idtoThrottleInfoMap.readLock().lock();
+    rwlChokeInfoMap.readLock().lock();
     try {
-      res = this.idtoThrottleInfoMap.containsKey(ID);
+      res = this.chokeInfoMap.containsKey(ID);
     } finally {
-      rwl_idtoThrottleInfoMap.readLock().unlock();
+      rwlChokeInfoMap.readLock().unlock();
     }
     return res;
   }
@@ -151,17 +150,17 @@ public class ChokeManager extends Thread {
         continue;
       }
 
-      rwl_idtoThrottleInfoMap.readLock().lock();
+      rwlChokeInfoMap.readLock().lock();
       // the main policy logic comes here
       try {
-        for (ThrottleInfoData choke : this.idtoThrottleInfoMap.values()) {
+        for (ChokeInfoData choke : this.chokeInfoMap.values()) {
           synchronized (choke) {
             choke.bucketFillup();
             choke.notifyAll();
           }
         }
       } finally {
-        rwl_idtoThrottleInfoMap.readLock().unlock();
+        rwlChokeInfoMap.readLock().unlock();
       }
     }
   }
@@ -174,19 +173,20 @@ public class ChokeManager extends Thread {
    * This is the method a choke-decorator calls inside its append. This method
    * ensures that only the allowed number of bytes are shipped in a certain time
    * quanta. Also note that this method can block for a while but not forever.
-   * This method blocks atmost for 2 time quantas. So if many driver threads are
+   * This method blocks at most for 2 time quanta. So if many driver threads are
    * using the same choke and the message size is huge, accuracy can be thrown
    * off, i.e., more bytes than the maximum limit can be shipped.
    */
   public void spendTokens(String id, int numBytes) throws IOException {
-    //TODO(Vibhor): Change this when we implement physica-lnode-level throttling policy.
-    rwl_idtoThrottleInfoMap.readLock().lock();
+    // TODO(Vibhor): Change this when we implement physical-node-level
+    // throttling policy.
+    rwlChokeInfoMap.readLock().lock();
     try {
       // simple policy for now: if the chokeid is not there then simply return,
       // essentially no throttling with an invalid chokeID.
       if (this.isChokeId(id) != false) {
         int loopCount = 0;
-        ThrottleInfoData myTinfoData = this.idtoThrottleInfoMap.get(id);
+        ChokeInfoData myTinfoData = this.chokeInfoMap.get(id);
         synchronized (myTinfoData) {
           while (this.active
               && !myTinfoData.bucketCompare(numBytes + this.payLoadheadrsize)) {
@@ -205,7 +205,7 @@ public class ChokeManager extends Thread {
         }
       }
     } finally {
-      rwl_idtoThrottleInfoMap.readLock().unlock();
+      rwlChokeInfoMap.readLock().unlock();
     }
   }
 }

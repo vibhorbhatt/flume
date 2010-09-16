@@ -71,9 +71,9 @@ public class TestChokeMapping {
     FlumeNode node = new FlumeNode(rpc, false, false);
     master.getSpecMan().addChokeLimit(node.getPhysicalNodeName(), "bar", 786);
 
-    // This method updatetoThrottleInfoMap is the same method call in the
+    // This method updateChokeLimitMap is the same method call in the
     // checkLogicalNodes() in the LivenessManager
-    node.getChokeManager().updateIdtoThrottleInfoMap(
+    node.getChokeManager().updateChokeLimitMap(
         (HashMap<String, Integer>) master.getSpecMan().getChokeMap(
             node.getPhysicalNodeName()));
 
