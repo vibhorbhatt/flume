@@ -129,8 +129,6 @@ public class ReportServer extends ThriftServer implements
     }
 
     FlumeReportAvro out = new FlumeReportAvro();
-<<<<<<< HEAD
-
     Map<CharSequence, CharSequence> stringMapUtf = new HashMap<CharSequence, CharSequence>();
     for (String s : stringMap.keySet()) {
       stringMapUtf.put(s, stringMap.get(s));
@@ -143,22 +141,7 @@ public class ReportServer extends ThriftServer implements
 
     Map<CharSequence, Long> longMapUtf = new HashMap<CharSequence, Long>();
     for (String s : longMap.keySet()) {
-=======
-    
-    // Translate to Utf8
-    Map<CharSequence, CharSequence> stringMapUtf = new HashMap<CharSequence, CharSequence>();
-    for (String s: stringMap.keySet()) { 
-      stringMapUtf.put(new Utf8(s), new Utf8(stringMap.get(s)));
-    }
-    
-    Map<CharSequence, Double> doubleMapUtf = new HashMap<CharSequence, Double>();
-    for (String s: doubleMap.keySet()) { 
-      doubleMapUtf.put(new Utf8(s), doubleMap.get(s));
-    }
 
-    Map<CharSequence, Long> longMapUtf = new HashMap<CharSequence, Long>();
-    for (String s: longMap.keySet()) { 
->>>>>>> Avro ported to 1.4& basic EventServer implemented
       longMapUtf.put(s, longMap.get(s));
     }
 

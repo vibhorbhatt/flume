@@ -58,30 +58,17 @@ public class MasterClientServerAvro implements FlumeReportAvroServer, RPCServer 
     this.port = FlumeConfiguration.get().getMasterHeartbeatPort();
   }
 
-<<<<<<< HEAD
   public List<CharSequence> getLogicalNodes(CharSequence physNode)
       throws AvroRemoteException {
     List<String> str = delegate.getLogicalNodes(physNode.toString());
     List<CharSequence> out = new ArrayList<CharSequence>();
     for (String s : str) {
       out.add(s);
-=======
-  public List<CharSequence> getLogicalNodes(CharSequence physNode) throws AvroRemoteException {
-    List<String> str = delegate.getLogicalNodes(physNode.toString());
-    List<CharSequence> out = new ArrayList<CharSequence>();
-    for (String s: str) {
-      out.add(new Utf8(s));
->>>>>>> Avro ported to 1.4& basic EventServer implemented
     }
     return out;
   }
-
-<<<<<<< HEAD
   public AvroFlumeConfigData getConfig(CharSequence host)
       throws AvroRemoteException {
-=======
-  public AvroFlumeConfigData getConfig(CharSequence host) throws AvroRemoteException {
->>>>>>> Avro ported to 1.4& basic EventServer implemented
     FlumeConfigData data = delegate.getConfig(host.toString());
     if (data != null) {
       return configToAvro(data);
@@ -94,23 +81,14 @@ public class MasterClientServerAvro implements FlumeReportAvroServer, RPCServer 
    * node name. Version is the node's current configuration version.
    */
   public boolean heartbeat(CharSequence logicalNode, CharSequence physicalNode,
-<<<<<<< HEAD
       CharSequence clienthost, FlumeNodeState s, long version)
       throws AvroRemoteException {
-=======
-      CharSequence clienthost, FlumeNodeState s, long version) throws AvroRemoteException {
->>>>>>> Avro ported to 1.4& basic EventServer implemented
-
     return delegate.heartbeat(logicalNode.toString(), physicalNode.toString(),
         clienthost.toString(), stateFromAvro(s), version);
   }
 
-<<<<<<< HEAD
   public java.lang.Void acknowledge(CharSequence ackid)
       throws AvroRemoteException {
-=======
-  public java.lang.Void acknowledge(CharSequence ackid) throws AvroRemoteException {
->>>>>>> Avro ported to 1.4& basic EventServer implemented
     delegate.acknowledge(ackid.toString());
     return null;
   }
@@ -119,7 +97,6 @@ public class MasterClientServerAvro implements FlumeReportAvroServer, RPCServer 
     return delegate.checkAck(ackid.toString());
   }
 
-<<<<<<< HEAD
   public java.lang.Void putReports(Map<CharSequence, FlumeReportAvro> reports)
       throws AvroRemoteException {
     Preconditions.checkNotNull(reports,
@@ -137,24 +114,6 @@ public class MasterClientServerAvro implements FlumeReportAvroServer, RPCServer 
             .toString());
       }
       for (CharSequence key : r.getValue().doubleMetrics.keySet()) {
-=======
-  public java.lang.Void putReports(Map<CharSequence, FlumeReportAvro> reports) throws AvroRemoteException {
-    Preconditions.checkNotNull(reports,
-        "putReports called with null report map");
-    Map<String, ReportEvent> reportsMap = new HashMap<String, ReportEvent>();
-    for (Entry<CharSequence, FlumeReportAvro> r: reports.entrySet()) {
-      Map<String, Long> longMetrics = new HashMap<String, Long>();
-      Map<String, Double> doubleMetrics = new HashMap<String, Double>();
-      Map<String, String> stringMetrics = new HashMap<String, String>();
-      for (CharSequence key: r.getValue().longMetrics.keySet()) {
-        longMetrics.put(key.toString(), r.getValue().longMetrics.get(key));
-      }
-      for (CharSequence key: r.getValue().stringMetrics.keySet()) {
-        stringMetrics.put(
-            key.toString(), r.getValue().stringMetrics.get(key).toString());
-      }
-      for (CharSequence key: r.getValue().doubleMetrics.keySet()) {
->>>>>>> Avro ported to 1.4& basic EventServer implemented
         doubleMetrics.put(key.toString(), r.getValue().doubleMetrics.get(key));
       }
       reportsMap.put(r.getKey().toString(), new ReportEvent(longMetrics,

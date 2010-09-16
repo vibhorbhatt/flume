@@ -94,11 +94,7 @@ public class MasterAdminServerAvro implements FlumeMasterAdminServerAvro,
   public static FlumeMasterCommandAvro commandToAvro(Command cmd) {
     FlumeMasterCommandAvro out = new FlumeMasterCommandAvro();
     out.command = cmd.command;
-<<<<<<< HEAD
     out.arguments = new ArrayList<CharSequence>();
-=======
-    out.arguments = new ArrayList <CharSequence> ();
->>>>>>> Avro ported to 1.4& basic EventServer implemented
     for (String s : cmd.args) {
       out.arguments.add(s);
     }
@@ -119,12 +115,8 @@ public class MasterAdminServerAvro implements FlumeMasterAdminServerAvro,
 
   // STUB FUNCTION SIGNATURES
   @Override
-<<<<<<< HEAD
   public Map<CharSequence, AvroFlumeConfigData> getConfigs()
       throws AvroRemoteException {
-=======
-  public Map<CharSequence, AvroFlumeConfigData> getConfigs() throws AvroRemoteException {
->>>>>>> Avro ported to 1.4& basic EventServer implemented
     Map<CharSequence, AvroFlumeConfigData> out = new HashMap<CharSequence, AvroFlumeConfigData>();
     Map<String, FlumeConfigData> results = this.delegate.getConfigs();
     for (String key : results.keySet()) {
@@ -147,13 +139,8 @@ public class MasterAdminServerAvro implements FlumeMasterAdminServerAvro,
   }
 
   @Override
-<<<<<<< HEAD
   public Map<CharSequence, List<CharSequence>> getMappings(
       CharSequence physicalNode) throws AvroRemoteException {
-=======
-  public Map<CharSequence, List<CharSequence>> getMappings(CharSequence physicalNode)
-      throws AvroRemoteException {
->>>>>>> Avro ported to 1.4& basic EventServer implemented
     Map<String, List<String>> nativeMappings;
     Map<CharSequence, List<CharSequence>> mappings;
 
@@ -161,15 +148,8 @@ public class MasterAdminServerAvro implements FlumeMasterAdminServerAvro,
     mappings = new HashMap<CharSequence, List<CharSequence>>();
 
     for (Entry<String, List<String>> entry : nativeMappings.entrySet()) {
-<<<<<<< HEAD
-
       ArrayList<CharSequence> values = new ArrayList<CharSequence>(entry
           .getValue().size());
-=======
-      ArrayList<CharSequence> values;
-
-      values = new ArrayList <CharSequence> ();
->>>>>>> Avro ported to 1.4& basic EventServer implemented
 
       for (String value : entry.getValue()) {
         values.add(value);

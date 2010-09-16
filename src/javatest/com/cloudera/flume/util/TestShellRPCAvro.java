@@ -70,15 +70,9 @@ public class TestShellRPCAvro {
     assertEquals("here", middle.command.toString());
     assertEquals(3, middle.arguments.size());
     int index = 0;
-<<<<<<< HEAD
     for (CharSequence u : middle.arguments) {
       switch (index) {
       case 0:
-=======
-    for (CharSequence u: middle.arguments) {
-      switch(index) {
-      case 0: 
->>>>>>> Avro ported to 1.4& basic EventServer implemented
         assertEquals("is", u.toString());
         break;
       case 1:
