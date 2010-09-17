@@ -19,13 +19,10 @@ package com.cloudera.flume.conf;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-
 import java.io.IOException;
-
 import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.mortbay.log.Log;
-
 import com.cloudera.flume.ExampleData;
 import com.cloudera.flume.core.Event;
 import com.cloudera.flume.core.EventImpl;
@@ -34,7 +31,6 @@ import com.cloudera.flume.core.EventSinkDecorator;
 import com.cloudera.flume.core.EventSource;
 import com.cloudera.flume.core.EventUtil;
 import com.cloudera.flume.core.connector.DirectDriver;
-import com.cloudera.flume.handlers.debug.TestChokeDecos;
 import com.cloudera.flume.reporter.aggregator.CounterSink;
 
 /**
@@ -103,12 +99,6 @@ public class TestFactories implements ExampleData {
     EventUtil.dumpAll(src, snk);
   }
 
-  @Test
-  public void testRpcSourceSink() throws IOException, InterruptedException,
-      FlumeSpecException {
-
-  }
-
   /**
    * This tests RpcSnk/Source for both Avro and Thrift type/
    */
@@ -119,7 +109,9 @@ public class TestFactories implements ExampleData {
     testRpc(FlumeConfiguration.RPC_TYPE_AVRO);
   }
 
-  /**
+  /*
+   * Following comment is carried from the ThriftRpcTest:
+   * 
    * This seems to fail about 1 out of 10 times. There is a timing issues due to
    * the multi-threading.
    */
@@ -129,11 +121,12 @@ public class TestFactories implements ExampleData {
     FlumeConfiguration.get().set(FlumeConfiguration.EVENT_RPC_TYPE, rpcType);
     Log.info("Testing a more complicated pipeline with a " + rpcType
         + " network connection in the middle");
-    EventSource tsrc = srcfact.getSource("rpcSource", "31337");
-    EventSink tsnk = fact.getSink(new Context(), "rpcSink", "0.0.0.0", "31337");
-    // thrift src needs to be started before the thrift sink can connect to it.
-    tsrc.open();
-    tsnk.open();
+    EventSource rpcSrc = srcfact.getSource("rpcSource", "31337");
+    EventSink rpcSink = fact.getSink(new Context(), "rpcSink", "0.0.0.0",
+        "31337");
+    // Rpcsrc needs to be started before the Rpcsink can connect to it.
+    rpcSrc.open();
+    rpcSink.open();
 
     Thread.sleep(100); // need some time to open the connector.
 
@@ -142,23 +135,23 @@ public class TestFactories implements ExampleData {
     counter.open();
     txtsrc.open();
 
-    DirectDriver svrconn = new DirectDriver(tsrc, counter);
+    DirectDriver svrconn = new DirectDriver(rpcSrc, counter);
     svrconn.start();
 
-    DirectDriver cliconn = new DirectDriver(txtsrc, tsnk);
+    DirectDriver cliconn = new DirectDriver(txtsrc, rpcSink);
     cliconn.start();
 
     cliconn.join(Long.MAX_VALUE);
     Thread.sleep(250);
 
     svrconn.stop();
-    tsnk.close();
-    tsrc.close();
+    rpcSink.close();
+    rpcSrc.close();
 
     counter.close();
     txtsrc.close();
 
-    System.out.println("read " + ((CounterSink) counter).getCount() + " lines");
+    LOG.info("read " + ((CounterSink) counter).getCount() + " lines");
     assertEquals(LINES, ((CounterSink) counter).getCount());
     assertNull(cliconn.getError());
     assertNull(svrconn.getError());

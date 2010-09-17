@@ -23,11 +23,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-
-import org.apache.avro.ipc.AvroRemoteException;
 import org.apache.log4j.Logger;
 import com.cloudera.flume.conf.FlumeConfiguration;
-import com.cloudera.flume.conf.SourceFactory.SourceBuilder;
 import com.cloudera.flume.core.Event;
 import com.cloudera.flume.core.EventSource;
 import com.cloudera.flume.reporter.ReportEvent;
@@ -36,7 +33,7 @@ import com.google.common.base.Preconditions;
 
 /**
  * This sets up the port that listens for incoming flumeAvroEvent rpc calls
- * using Avro.
+ * using Avro. This class pretty much mimics ThriftEventSource.
  */
 public class AvroEventSource extends EventSource.Base {
   /*
@@ -59,10 +56,8 @@ public class AvroEventSource extends EventSource.Base {
   // BytesIN in here (unlike the Thrift version) corresponds to the total bytes
   // of Event.body shipped.
   public static final String A_BYTES_IN = "bytesIn";
-
   final int port;
   private FlumeEventAvroServerImpl svr;
-
   final BlockingQueue<Event> q;
   final AtomicLong enqueued = new AtomicLong();
   final AtomicLong dequeued = new AtomicLong();
@@ -135,7 +130,6 @@ public class AvroEventSource extends EventSource.Base {
         try {
           enqueue(adapt.toFlumeEvent());
         } catch (IOException e1) {
-          // TODO Auto-generated catch block
           e1.printStackTrace();
         }
         super.append(evt);

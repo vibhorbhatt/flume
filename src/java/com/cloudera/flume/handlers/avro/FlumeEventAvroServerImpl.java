@@ -1,3 +1,20 @@
+/**
+ * Licensed to Cloudera, Inc. under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  Cloudera, Inc. licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.cloudera.flume.handlers.avro;
 
 import java.io.IOException;
@@ -9,9 +26,10 @@ import org.apache.avro.specific.SpecificResponder;
 public class FlumeEventAvroServerImpl implements FlumeEventAvroServer {
   private HttpServer http;
   private final int port;
-/**
- *  This just sets the port for this AvroServer 
- */
+
+  /**
+   * This just sets the port for this AvroServer
+   */
   public FlumeEventAvroServerImpl(int port) {
     this.port = port;
   }
@@ -24,16 +42,15 @@ public class FlumeEventAvroServerImpl implements FlumeEventAvroServer {
         this);
     this.http = new HttpServer(res, port);
     this.http.start();
-    // Current version of Avro 1.3.3 block the call below.
   }
 
   @Override
-  public void append(AvroFlumeEvent evt)  {
+  public void append(AvroFlumeEvent evt) {
   }
 
-/**
- * Stops the FlumeEventAvroServer, called only from the server. 
- */
+  /**
+   * Stops the FlumeEventAvroServer, called only from the server.
+   */
   public Void close() throws AvroRemoteException {
     http.close();
     return null;

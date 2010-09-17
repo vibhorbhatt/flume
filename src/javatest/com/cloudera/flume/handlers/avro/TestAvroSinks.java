@@ -41,7 +41,7 @@ import com.cloudera.flume.reporter.aggregator.CounterSink;
 import com.cloudera.util.NetUtils;
 
 /**
- * Tests AvroSinks and AvroSources. Pretty much mimics TestThriftSinks. 
+ * Tests AvroSinks and AvroSources. Pretty much mimics TestThriftSinks.
  */
 public class TestAvroSinks implements ExampleData {
   public static Logger LOG = Logger.getLogger(TestAvroSinks.class);
@@ -161,10 +161,7 @@ public class TestAvroSinks implements ExampleData {
       Thread th = new Thread() {
         public void run() {
           try {
-            // TODO (jon) this may have different sizes due to the host it is
-            // running on . Needs to be fixed.
             EventSource txt = new NoNlASCIISynthSource(25, 100);
-
             txt.open();
             MemorySinkSource mem = new MemorySinkSource();
             mem.open();
@@ -191,7 +188,6 @@ public class TestAvroSinks implements ExampleData {
           } catch (InterruptedException e) {
             e.printStackTrace();
           }
-
         }
       };
       th.start();
@@ -217,7 +213,6 @@ public class TestAvroSinks implements ExampleData {
         .longValue());
     assertEquals(1000, rpt.getLongMetric(AvroEventSource.A_QUEUE_FREE)
         .longValue());
-
   }
 
   /**
@@ -229,11 +224,7 @@ public class TestAvroSinks implements ExampleData {
     // this is a slight tweak to avoid port conflicts
     final AvroEventSource tes = new AvroEventSource(conf.getCollectorPort() + 1);
     tes.open();
-
     tes.enqueue(new EventImpl(new byte[0]));
-
     tes.close();
-
   }
-
 }
