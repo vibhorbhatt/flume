@@ -112,7 +112,11 @@ public class AvroEventSink extends EventSink.Base {
     if (transport != null) {
       transport.close();
       transport = null;
-      LOG.info("AvrotEventSink on port " + port + " closed");
+      LOG.info("AvroEventSink on port " + port + " closed");
+    }
+    else
+    {
+      LOG.warn("Trying to close AvroEventSink, which was closed already");
     }
   }
 

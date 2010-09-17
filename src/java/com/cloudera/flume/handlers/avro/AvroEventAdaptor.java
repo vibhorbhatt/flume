@@ -124,8 +124,9 @@ class AvroEventAdaptor extends Event {
 
     tempAvroEvt.fields = new HashMap<CharSequence, ByteBuffer>();
     for (String s : e.getAttrs().keySet()) {
-      ByteBuffer temp = ByteBuffer.allocateDirect(e.getAttrs().get(s).length);
-      temp = ByteBuffer.wrap(e.getAttrs().get(s));
+      // wrap a ByteBuffer around e.getAttrs().get(s)
+      // also note that e.getAttrs().get(s) is immutable
+      ByteBuffer temp = ByteBuffer.wrap(e.getAttrs().get(s));
       tempAvroEvt.fields.put(s, temp);
     }
     return tempAvroEvt;

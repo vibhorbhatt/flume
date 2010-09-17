@@ -223,7 +223,7 @@ public class ThriftEventSource extends EventSource.Base {
     return new SourceBuilder() {
       @Override
       public EventSource build(String... argv) {
-        Preconditions.checkArgument(argv.length == 1, "usage: Source(port)");
+        Preconditions.checkArgument(argv.length == 1, "usage: thriftSource(port)");
 
         int port = Integer.parseInt(argv[0]);
 

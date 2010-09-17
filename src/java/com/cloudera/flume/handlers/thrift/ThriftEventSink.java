@@ -150,7 +150,7 @@ public class ThriftEventSink extends EventSink.Base {
       public EventSink build(Context context, String... args) {
         if (args.length > 2) {
           throw new IllegalArgumentException(
-              "usage: thrift([hostname, [portno]]) ");
+              "usage: thriftSink([hostname, [portno]]) ");
         }
         String host = FlumeConfiguration.get().getCollectorHost();
         int port = FlumeConfiguration.get().getCollectorPort();

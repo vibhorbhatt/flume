@@ -77,9 +77,8 @@ public class AvroEventSource extends EventSource.Base {
 
   /**
    * Get reportable data from the Avro event source.
-   * 
-   * @Override
    */
+  @Override
   synchronized public ReportEvent getReport() {
     ReportEvent rpt = super.getReport();
     rpt.setLongMetric(A_QUEUE_CAPACITY, q.size());
@@ -174,6 +173,8 @@ public class AvroEventSource extends EventSource.Base {
         Thread.sleep(100);
       } catch (InterruptedException e) {
         LOG.error("Unexpected interrupt of close " + e.getMessage(), e);
+        Thread.currentThread().interrupt();
+        throw new IOException(e);
       }
     }
 

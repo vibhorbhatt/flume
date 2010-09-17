@@ -22,7 +22,9 @@ import java.io.IOException;
 import org.apache.avro.ipc.AvroRemoteException;
 import org.apache.avro.ipc.HttpServer;
 import org.apache.avro.specific.SpecificResponder;
-
+/**
+ * This implements the AvroEventServer.
+ */
 public class FlumeEventAvroServerImpl implements FlumeEventAvroServer {
   private HttpServer http;
   private final int port;
