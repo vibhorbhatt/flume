@@ -48,8 +48,8 @@ These sources are untranslated and generally need all of their arguments.
 
 +rpcSource(_port_)+ :: A remote procedure call (RPC) server that is
 configured to listen on TCP port +_port_+. Supports both Apache-Thrift and 
-Apache-Avro RPC framework.  The type of RPC framework is specified by +event.rpc.type+ property (THRIFT or AVRO), 
-the default is THRIFT.  Note that same RPC framework is used for rpcSink.
+Apache-Avro RPC framework.  The type of RPC framework is specified by +event.rpc.type+ 
+property (THRIFT or AVRO), the default is THRIFT.  Note that same RPC framework is used for rpcSink.
 
 +text("_filename_")+ :: One-time text file source.  One event per +\n+ 
 delimited line.
