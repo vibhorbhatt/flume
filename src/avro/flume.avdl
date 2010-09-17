@@ -35,7 +35,4 @@ record AvroFlumeEvent {
 }
 
 void append( AvroFlumeEvent evt ) oneway ;
-    
-void close() ; 
-
 }

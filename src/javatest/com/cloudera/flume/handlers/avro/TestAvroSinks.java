@@ -31,23 +31,17 @@ import org.junit.Test;
 
 import com.cloudera.flume.ExampleData;
 import com.cloudera.flume.conf.FlumeConfiguration;
-import com.cloudera.flume.core.Event;
 import com.cloudera.flume.core.EventImpl;
 import com.cloudera.flume.core.EventSource;
 import com.cloudera.flume.core.EventUtil;
 import com.cloudera.flume.handlers.debug.MemorySinkSource;
 import com.cloudera.flume.handlers.debug.NoNlASCIISynthSource;
-import com.cloudera.flume.master.Command;
-import com.cloudera.flume.master.TestAvroAdminServer.MyAvroServer;
 import com.cloudera.flume.reporter.ReportEvent;
 import com.cloudera.flume.reporter.aggregator.CounterSink;
-import com.cloudera.flume.util.AdminRPC;
-import com.cloudera.flume.util.AdminRPCAvro;
 import com.cloudera.util.NetUtils;
 
 /**
- * Something broke in the performance benchmark so this is just a fast simple
- * functional test.
+ * Tests AvroSinks and AvroSources. Pretty much mimics TestThriftSinks. 
  */
 public class TestAvroSinks implements ExampleData {
   public static Logger LOG = Logger.getLogger(TestAvroSinks.class);
@@ -60,7 +54,7 @@ public class TestAvroSinks implements ExampleData {
 
   @Before
   public void setLocalhost() {
-  NetUtils.setLocalhost("host");
+    NetUtils.setLocalhost("host");
   }
 
   /**
@@ -125,7 +119,6 @@ public class TestAvroSinks implements ExampleData {
         .intValue());
     assertEquals(1000, rpt.getLongMetric(AvroEventSource.A_QUEUE_FREE)
         .intValue());
-
   }
 
   /**
@@ -139,15 +132,30 @@ public class TestAvroSinks implements ExampleData {
    * mem -> AvroEventSink -> AvroEventSource -> counter
    */
   @Test
-  public void testSimpleManyAvroSend() throws IOException,
+  public void testManyThreadsAvroSend() throws IOException,
       InterruptedException {
-    final int threads = 25;
+    final int threads = 10;
     final FlumeConfiguration conf = FlumeConfiguration.get();
     // this is a slight tweak to avoid port conflicts
     final AvroEventSource tes = new AvroEventSource(conf.getCollectorPort() + 1);
-    
     tes.open();
-    LOG.info("testSimpleManyAvro started");
+
+    final CounterSink cnt = new CounterSink("count");
+    cnt.open();
+    Thread t = new Thread("drain") {
+      public void run() {
+        try {
+          EventUtil.dumpAll(tes, cnt);
+        } catch (IOException e) {
+        }
+      }
+    };
+    t.start(); // drain the sink.
+
+    // fork off threads threads and have them start all the same time.
+    final CountDownLatch sendStarted = new CountDownLatch(threads);
+    final CountDownLatch sendDone = new CountDownLatch(threads);
+    final AtomicLong sendByteSum = new AtomicLong(0);
     for (int i = 0; i < threads; i++) {
       final int id = i;
       Thread th = new Thread() {
@@ -155,132 +163,62 @@ public class TestAvroSinks implements ExampleData {
           try {
             // TODO (jon) this may have different sizes due to the host it is
             // running on . Needs to be fixed.
-            Event temp= new EventImpl(("Vibhor"+id).getBytes());
-            
-            AvroEventSink snk = new AvroEventSink("localhost", conf
+            EventSource txt = new NoNlASCIISynthSource(25, 100);
+
+            txt.open();
+            MemorySinkSource mem = new MemorySinkSource();
+            mem.open();
+            EventUtil.dumpAll(txt, mem);
+            txt.close();
+
+            // mem -> AvroEventSink
+            AvroEventSink snk = new AvroEventSink("0.0.0.0", conf
                 .getCollectorPort() + 1);
             snk.open();
-            snk.append(temp);
+
+            sendStarted.countDown();
+            sendStarted.await();
+            EventUtil.dumpAll(mem, snk);
+            mem.close();
             snk.close();
+
+            sendByteSum.addAndGet(snk.sentBytes.get());
+            LOG.info("sink " + id + " sent " + snk.sentBytes + " bytes");
+            sendDone.countDown();
 
           } catch (IOException e) {
             e.printStackTrace();
-          } 
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+
         }
       };
       th.start();
-      th.join();
     }
 
     // wait for senders to send all
+    sendDone.await();
 
     // a little delay get data to the receiving side.
-    
-    ReportEvent rpt = tes.getReport();
-    
-    LOG.info("#bytes in "+ rpt.getLongMetric(AvroEventSource.A_BYTES_IN));
+    Thread.sleep(1000);
+
     tes.close();
+    assertEquals(25 * threads, cnt.getCount());
+    ReportEvent rpt = tes.getReport();
+    assertEquals(2500 * threads, sendByteSum.get());
+    assertEquals(2500 * threads, rpt.getLongMetric(AvroEventSource.A_BYTES_IN)
+        .longValue());
+    assertEquals(25 * threads, rpt.getLongMetric(AvroEventSource.A_DEQUEUED)
+        .longValue());
+    assertEquals(25 * threads, rpt.getLongMetric(AvroEventSource.A_ENQUEUED)
+        .longValue());
+    assertEquals(0, rpt.getLongMetric(AvroEventSource.A_QUEUE_CAPACITY)
+        .longValue());
+    assertEquals(1000, rpt.getLongMetric(AvroEventSource.A_QUEUE_FREE)
+        .longValue());
 
-      }
-
-  /**
-   * This tests starts many threads and confirms that the metrics values in
-   * ThiftEventSource are consistently updated.
-   * 
-   * The pipeline is:
-   * 
-   * text file -> mem
-   * 
-   * mem -> AvroEventSink -> AvroEventSource -> counter
-   */
-//  @Test
-//  public void testManyThreadsAvroSend() throws IOException,
-//      InterruptedException {
-//    final int threads = 10;
-//    final FlumeConfiguration conf = FlumeConfiguration.get();
-//    // this is a slight tweak to avoid port conflicts
-//    final AvroEventSource tes = new AvroEventSource(conf.getCollectorPort() + 1);
-//    tes.open();
-//
-//    final CounterSink cnt = new CounterSink("count");
-//    cnt.open();
-//    Thread t = new Thread("drain") {
-//      public void run() {
-//        try {
-//          EventUtil.dumpAll(tes, cnt);
-//        } catch (IOException e) {
-//        }
-//      }
-//    };
-//    t.start(); // drain the sink.
-//
-//    // fork off threads threads and have them start all the same time.
-//    final CountDownLatch sendStarted = new CountDownLatch(threads);
-//    final CountDownLatch sendDone = new CountDownLatch(threads);
-//    final AtomicLong sendByteSum = new AtomicLong(0);
-//    for (int i = 0; i < threads; i++) {
-//      final int id = i;
-//      Thread th = new Thread() {
-//        public void run() {
-//          try {
-//            // TODO (jon) this may have different sizes due to the host it is
-//            // running on . Needs to be fixed.
-//            EventSource txt = new NoNlASCIISynthSource(25, 100);
-//
-//            txt.open();
-//            MemorySinkSource mem = new MemorySinkSource();
-//            mem.open();
-//            EventUtil.dumpAll(txt, mem);
-//            txt.close();
-//
-//            // mem -> AvroEventSink
-//            AvroEventSink snk = new AvroEventSink("0.0.0.0", conf
-//                .getCollectorPort() + 1);
-//            snk.open();
-//
-//            sendStarted.countDown();
-//            sendStarted.await();
-//            EventUtil.dumpAll(mem, snk);
-//            mem.close();
-//            snk.close();
-//
-//            sendByteSum.addAndGet(snk.sentBytes.get());
-//            LOG.info("sink " + id + " sent " + snk.sentBytes + " bytes");
-//            sendDone.countDown();
-//
-//          } catch (IOException e) {
-//            e.printStackTrace();
-//          } catch (InterruptedException e) {
-//            e.printStackTrace();
-//          }
-//
-//        }
-//      };
-//      th.start();
-//    }
-//
-//    // wait for senders to send all
-//    sendDone.await();
-//
-//    // a little delay get data to the receiving side.
-//    Thread.sleep(1000);
-//
-//    tes.close();
-//    assertEquals(25 * threads, cnt.getCount());
-//    ReportEvent rpt = tes.getReport();
-//    assertEquals(4475 * threads, sendByteSum.get());
-//    assertEquals(4474 * threads, rpt.getLongMetric(AvroEventSource.A_BYTES_IN)
-//        .longValue());
-//    assertEquals(25 * threads, rpt.getLongMetric(AvroEventSource.A_DEQUEUED)
-//        .longValue());
-//    assertEquals(25 * threads, rpt.getLongMetric(AvroEventSource.A_ENQUEUED)
-//        .longValue());
-//    assertEquals(0, rpt.getLongMetric(AvroEventSource.A_QUEUE_CAPACITY)
-//        .longValue());
-//    assertEquals(1000, rpt.getLongMetric(AvroEventSource.A_QUEUE_FREE)
-//        .longValue());
-//
-//  }
+  }
 
   /**
    * Checks to verify that a Avro server doesn't hang forever on closing
@@ -298,6 +236,4 @@ public class TestAvroSinks implements ExampleData {
 
   }
 
-  
-  
 }

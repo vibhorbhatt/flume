@@ -93,12 +93,59 @@ public class TestFactories extends TestCase implements ExampleData {
     EventUtil.dumpAll(src, snk);
   }
 
+  public void testRpcSourceSink() throws IOException, InterruptedException,
+      FlumeSpecException {
+
+  }
+
   /**
    * This seems to fail about 1 out of 10 times. There is a timing issues due to
    * the multi-threading.
    */
   public void testThrift() throws IOException, InterruptedException,
       FlumeSpecException {
+    System.out
+        .println("Testing a more complicated pipeline with a thrift network connection in the middle");
+    EventSource tsrc = srcfact.getSource("rpcSource", "31337");
+    EventSink tsnk = fact.getSink(new Context(), "rpcSink", "0.0.0.0", "31337");
+    // thrift src needs to be started before the thrift sink can connect to it.
+    tsrc.open();
+    tsnk.open();
+
+    Thread.sleep(100); // need some time to open the connector.
+
+    EventSink counter = fact.getSink(new Context(), "counter", "count");
+    EventSource txtsrc = srcfact.getSource("asciisynth", "25", "100");
+    counter.open();
+    txtsrc.open();
+
+    DirectDriver svrconn = new DirectDriver(tsrc, counter);
+    svrconn.start();
+
+    DirectDriver cliconn = new DirectDriver(txtsrc, tsnk);
+    cliconn.start();
+
+    cliconn.join(Long.MAX_VALUE);
+    Thread.sleep(250);
+
+    svrconn.stop();
+    tsnk.close();
+    tsrc.close();
+
+    counter.close();
+    txtsrc.close();
+
+    System.out.println("read " + ((CounterSink) counter).getCount() + " lines");
+    assertEquals(LINES, ((CounterSink) counter).getCount());
+    assertNull(cliconn.getError());
+    assertNull(svrconn.getError());
+
+  }
+
+  public void testAvro() throws IOException, InterruptedException,
+      FlumeSpecException {
+    FlumeConfiguration.get().set(FlumeConfiguration.EVENT_RPC_TYPE, FlumeConfiguration.RPC_TYPE_AVRO);
+    
     System.out
         .println("Testing a more complicated pipeline with a thrift network connection in the middle");
     EventSource tsrc = srcfact.getSource("rpcSource", "31337");

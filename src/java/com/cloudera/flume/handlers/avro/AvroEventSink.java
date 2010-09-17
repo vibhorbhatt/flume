@@ -1,5 +1,5 @@
 package com.cloudera.flume.handlers.avro;
-
+//TODO license
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicLong;
@@ -18,7 +18,11 @@ import com.cloudera.flume.core.EventSink;
 import com.cloudera.flume.core.Event.Priority;
 import com.cloudera.flume.reporter.ReportEvent;
 import com.cloudera.util.Clock;
-
+/**
+ * TODO
+ * @author vibhor
+ *
+ */
 public class AvroEventSink extends EventSink.Base {
 
   static Logger LOG = Logger.getLogger(AvroEventSink.class);
@@ -44,7 +48,9 @@ public class AvroEventSink extends EventSink.Base {
     this.host = host;
     this.port = port;
   }
-
+/**
+ * {@inheritDoc}
+ */
   @Override
   public void append(Event e) throws IOException {
     // convert the flumeEvent to AvroEevent
@@ -106,10 +112,7 @@ public class AvroEventSink extends EventSink.Base {
     FlumeConfiguration conf = FlumeConfiguration.get();
     int port = conf.getCollectorPort();
     FlumeEventAvroServerImpl testServer = new FlumeEventAvroServerImpl(port);
-
     AvroEventSink sink = new AvroEventSink("localhost", port);
-    
-    
     try {
       testServer.start();
       sink.open();

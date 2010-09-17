@@ -25,22 +25,20 @@ import com.cloudera.flume.handlers.avro.AvroEventSource;
 import com.google.common.base.Preconditions;
 
 /**
- * This is a source that sends events to a remote host/port, it either uses Avro
- * or Thrift depending upon the EVENT_RPC_TYPE set in the conf file.
+ * This is a source that sends events through a RPC, it either uses Avro or
+ * Thrift depending upon the EVENT_RPC_TYPE set in the configuration file.
  */
 public class RpcSource extends EventSink.Base {
 
   /**
    * This class will build an AvroEventSource or ThriftEventSource depending on
-   * the value of EVENT_RPC_TYPE set in the conf file.
+   * the value of EVENT_RPC_TYPE set in the configuration file.
    */
-
   public static SourceBuilder builder() {
     return new SourceBuilder() {
-
       @Override
       public EventSource build(String... argv) {
-        Preconditions.checkArgument(argv.length == 1, "usage: tSource(port)");
+        Preconditions.checkArgument(argv.length == 1, "usage: rpcSource(port)");
 
         int port = Integer.parseInt(argv[0]);
         /*

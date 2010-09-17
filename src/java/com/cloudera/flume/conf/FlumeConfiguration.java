@@ -546,7 +546,9 @@ public class FlumeConfiguration extends Configuration {
     // FLUME = 35863 (flume on the telephone)
     return getInt(COLLECTOR_EVENT_PORT, 35853);
   }
-
+  /**
+   * This returns the type of RPC mechanism (Thrift or Avro) chosen for the FlumeEventServer.
+   */
   public String getEventRPC() {
     String[] validRPCProtocols = { RPC_TYPE_AVRO, RPC_TYPE_THRIFT };
     String entered = get(EVENT_RPC_TYPE, RPC_TYPE_THRIFT).toUpperCase();

@@ -24,14 +24,14 @@ import com.cloudera.flume.core.EventSink;
 import com.cloudera.flume.handlers.avro.AvroEventSink;
 
 /**
- * This is a sink that sends events to a remote host/port, it either uses Avro
- * or Thrift depending upon the EVENT_RPC_TYPE set in the conf file.
+ * This is a sink that is used to send events through an RPC, it either uses
+ * Avro or Thrift depending upon the EVENT_RPC_TYPE set in the configuration file.
  */
 public class RpcSink extends EventSink.Base {
 
   /**
    * This class will build an AvroEventSink or ThriftEventSink depending on the
-   * value of EVENT_RPC_TYPE set in the conf file.
+   * value of EVENT_RPC_TYPE set in the configuration file.
    */
   public static SinkBuilder builder() {
     return new SinkBuilder() {
@@ -39,7 +39,7 @@ public class RpcSink extends EventSink.Base {
       public EventSink build(Context context, String... args) {
         if (args.length > 2) {
           throw new IllegalArgumentException(
-              "usage: thrift/avro([hostname, [portno]]) ");
+              "usage: rpcSink([hostname, [portno]]) ");
         }
         String host = FlumeConfiguration.get().getCollectorHost();
         int port = FlumeConfiguration.get().getCollectorPort();

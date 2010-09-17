@@ -56,8 +56,7 @@ public class AvroEventSource extends EventSource.Base {
   public static final String A_ENQUEUED = "enqueued";
   public static final String A_DEQUEUED = "dequeued";
   // BytesIN in here (unlike the Thrift version) corresponds to the total bytes
-  // of
-  // Event.body shipped.
+  // of Event.body shipped.
   public static final String A_BYTES_IN = "bytesIn";
 
   final int port;
@@ -130,9 +129,6 @@ public class AvroEventSource extends EventSource.Base {
         // convert AvroEvent evt -> e
         AvroEventAdaptor adapt = new AvroEventAdaptor(evt);
         try {
-          Event temp = adapt.toFlumeEvent();
-          System.out.println("Hi I am in the append : "
-              + new String(temp.getBody()));
           enqueue(adapt.toFlumeEvent());
         } catch (IOException e1) {
           // TODO Auto-generated catch block
