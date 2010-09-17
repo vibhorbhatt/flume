@@ -41,7 +41,7 @@ import com.cloudera.util.Clock;
 import com.google.common.base.Preconditions;
 
 /**
- * This sets up the port that listens for incoming flume event rpc calls.
+ * This sets up the port that listens for incoming flume event rpc calls using Thrift.
  */
 public class ThriftEventSource extends EventSource.Base {
   final static int DEFAULT_QUEUE_SIZE = FlumeConfiguration.get()

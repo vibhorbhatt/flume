@@ -35,7 +35,8 @@ import com.cloudera.util.Clock;
 import com.google.common.base.Preconditions;
 
 /**
- * This sets up the port that listens for incoming flumeAvroEvent rpc calls.
+ * This sets up the port that listens for incoming flumeAvroEvent rpc calls
+ * using Avro.
  */
 public class AvroEventSource extends EventSource.Base {
   /*
@@ -120,6 +121,9 @@ public class AvroEventSource extends EventSource.Base {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   synchronized public void open() throws IOException {
 
@@ -142,6 +146,9 @@ public class AvroEventSource extends EventSource.Base {
     this.closed = false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   synchronized public void close() throws IOException {
 
@@ -179,6 +186,9 @@ public class AvroEventSource extends EventSource.Base {
     return;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Event next() throws IOException {
     try {

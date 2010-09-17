@@ -39,7 +39,7 @@ import com.cloudera.flume.handlers.thrift.ThriftFlumeEventServer.Client;
 import com.cloudera.flume.reporter.ReportEvent;
 
 /**
- * This is a sink that sends events to a remote host/port.
+ * This is a sink that sends events to a remote host/port using Thrift.
  */
 public class ThriftEventSink extends EventSink.Base {
 

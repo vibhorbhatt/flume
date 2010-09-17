@@ -1,5 +1,22 @@
+/**
+ * Licensed to Cloudera, Inc. under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  Cloudera, Inc. licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.cloudera.flume.handlers.avro;
-//TODO license
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicLong;
@@ -18,10 +35,9 @@ import com.cloudera.flume.core.EventSink;
 import com.cloudera.flume.core.Event.Priority;
 import com.cloudera.flume.reporter.ReportEvent;
 import com.cloudera.util.Clock;
+
 /**
- * TODO
- * @author vibhor
- *
+ *This is a sink that sends events to a remote host/port using Avro.
  */
 public class AvroEventSink extends EventSink.Base {
 
@@ -48,9 +64,10 @@ public class AvroEventSink extends EventSink.Base {
     this.host = host;
     this.port = port;
   }
-/**
- * {@inheritDoc}
- */
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void append(Event e) throws IOException {
     // convert the flumeEvent to AvroEevent
@@ -71,7 +88,9 @@ public class AvroEventSink extends EventSink.Base {
       throw new IOException("MasterRPC called while not connected to master");
     }
   }
-
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void open() throws IOException {
 
@@ -86,7 +105,9 @@ public class AvroEventSink extends EventSink.Base {
     }
     LOG.info("AvroEventSink open on port  " + port);
   }
-
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void close() throws IOException {
     if (transport != null) {
@@ -95,7 +116,9 @@ public class AvroEventSink extends EventSink.Base {
       LOG.info("AvrotEventSink on port " + port + " closed");
     }
   }
-
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ReportEvent getReport() {
     ReportEvent rpt = super.getReport();
@@ -103,41 +126,5 @@ public class AvroEventSink extends EventSink.Base {
     rpt.setLongMetric(A_SERVERPORT, port);
     rpt.setLongMetric(A_SENTBYTES, sentBytes.get());
     return rpt;
-  }
-
-  /**
-   * Just for testing.
-   */
-  public static void main(String argv[]) throws IOException {
-    FlumeConfiguration conf = FlumeConfiguration.get();
-    int port = conf.getCollectorPort();
-    FlumeEventAvroServerImpl testServer = new FlumeEventAvroServerImpl(port);
-    AvroEventSink sink = new AvroEventSink("localhost", port);
-    try {
-      testServer.start();
-      sink.open();
-
-      for (int i = 0; i < 100; i++) {
-        Event e = new EventImpl(("This is a test " + i).getBytes(), Clock
-            .unixTime(), Priority.INFO, Clock.nanos(), "host");
-
-        e.set("pop", "pop".getBytes());
-        sink.append(e);
-        LOG.info("Test Message " + i + " shipped");
-        Thread.sleep(200);
-
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
-    try {
-      testServer.close();
-      sink.close();
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
   }
 }
