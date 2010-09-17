@@ -30,11 +30,8 @@ import com.cloudera.flume.conf.Context;
 import com.cloudera.flume.conf.FlumeConfiguration;
 import com.cloudera.flume.conf.SinkFactory.SinkBuilder;
 import com.cloudera.flume.core.Event;
-import com.cloudera.flume.core.EventImpl;
 import com.cloudera.flume.core.EventSink;
-import com.cloudera.flume.core.Event.Priority;
 import com.cloudera.flume.reporter.ReportEvent;
-import com.cloudera.util.Clock;
 
 /**
  *This is a sink that sends events to a remote host/port using Avro.
@@ -88,6 +85,7 @@ public class AvroEventSink extends EventSink.Base {
       throw new IOException("MasterRPC called while not connected to master");
     }
   }
+
   /**
    * {@inheritDoc}
    */
@@ -105,6 +103,7 @@ public class AvroEventSink extends EventSink.Base {
     }
     LOG.info("AvroEventSink open on port  " + port);
   }
+
   /**
    * {@inheritDoc}
    */
@@ -116,6 +115,7 @@ public class AvroEventSink extends EventSink.Base {
       LOG.info("AvrotEventSink on port " + port + " closed");
     }
   }
+
   /**
    * {@inheritDoc}
    */
@@ -126,5 +126,27 @@ public class AvroEventSink extends EventSink.Base {
     rpt.setLongMetric(A_SERVERPORT, port);
     rpt.setLongMetric(A_SENTBYTES, sentBytes.get());
     return rpt;
+  }
+
+  public static SinkBuilder builder() {
+    return new SinkBuilder() {
+      @Override
+      public EventSink build(Context context, String... args) {
+        if (args.length > 2) {
+          throw new IllegalArgumentException(
+              "usage: thrift([hostname, [portno]]) ");
+        }
+        String host = FlumeConfiguration.get().getCollectorHost();
+        int port = FlumeConfiguration.get().getCollectorPort();
+        if (args.length >= 1) {
+          host = args[0];
+        }
+
+        if (args.length >= 2) {
+          port = Integer.parseInt(args[1]);
+        }
+        return new AvroEventSink(host, port);
+      }
+    };
   }
 }

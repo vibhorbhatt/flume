@@ -38,6 +38,7 @@ import com.cloudera.flume.core.MaskDecorator;
 import com.cloudera.flume.core.SelectDecorator;
 import com.cloudera.flume.core.extractors.RegexExtractor;
 import com.cloudera.flume.core.extractors.SplitExtractor;
+import com.cloudera.flume.handlers.avro.AvroEventSink;
 import com.cloudera.flume.handlers.batch.BatchingDecorator;
 import com.cloudera.flume.handlers.batch.GunzipDecorator;
 import com.cloudera.flume.handlers.batch.GzipDecorator;
@@ -130,7 +131,8 @@ public class SinkFactoryImpl extends SinkFactory {
       { "rpcSink", RpcSink.builder() }, //creates AvroEventSink or ThriftEventSink
       { "syslogTcp", SyslogTcpSink.builder() },
       { "irc", IrcSink.builder() },
-
+      { "thriftSink", ThriftEventSink.builder() },
+      { "avroSink", AvroEventSink.builder() },
       // advanced
       { "failChain", FailoverChainSink.builder() }, // @deprecated
 
@@ -145,7 +147,6 @@ public class SinkFactoryImpl extends SinkFactory {
       { "regexhistospec", RegexGroupHistogramSink.builder() },
 
       // deprecated
-      { "thrift", ThriftEventSink.builder() },
       { "tsink", ThriftEventSink.builder() },
       { "tacksink", ThriftAckedEventSink.builder() },
       { "trawsink", ThriftRawEventSink.builder() }, };

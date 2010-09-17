@@ -546,8 +546,10 @@ public class FlumeConfiguration extends Configuration {
     // FLUME = 35863 (flume on the telephone)
     return getInt(COLLECTOR_EVENT_PORT, 35853);
   }
+
   /**
-   * This returns the type of RPC mechanism (Thrift or Avro) chosen for the FlumeEventServer.
+   * This returns the type of RPC mechanism (Thrift or Avro) chosen for the
+   * FlumeEventServer.
    */
   public String getEventRPC() {
     String[] validRPCProtocols = { RPC_TYPE_AVRO, RPC_TYPE_THRIFT };
@@ -557,7 +559,9 @@ public class FlumeConfiguration extends Configuration {
         return prot;
       }
     }
-    // default
+    // defaulting to Thrift with a polite warning
+    LOG.warn("event.rpc.type incorrectly defined, should be either"
+        + " \"THRIFT\" or \"AVRO\".  Defaulting to \"THRIFT\"");
     return RPC_TYPE_THRIFT;
   }
 
@@ -810,7 +814,6 @@ public class FlumeConfiguration extends Configuration {
   public String getWebAppsPath() {
     return get(WEBAPPS_PATH, "webapps");
   }
-
 
   /**
    * This method loads the configuration, or does a hard exit if loading the

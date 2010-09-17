@@ -31,6 +31,7 @@ import com.cloudera.flume.collector.CollectorSource;
 import com.cloudera.flume.core.EventSource;
 import com.cloudera.flume.core.PollingSource;
 import com.cloudera.flume.core.EventSource.StubSource;
+import com.cloudera.flume.handlers.avro.AvroEventSource;
 import com.cloudera.flume.handlers.debug.Log4jTextFileSource;
 import com.cloudera.flume.handlers.debug.NoNlASCIISynthSource;
 import com.cloudera.flume.handlers.debug.NoNlSynthSource;
@@ -71,8 +72,10 @@ public class SourceFactoryImpl extends SourceFactory {
       // low level Sources
       { "null", NullSource.builder() },
       { "console", StdinSource.builder() },
-      { "rpcSource", RpcSource.builder() }, //creates AvroEventSource or ThriftEventSource
-      { "tsource", ThriftEventSource.builder() }, // TODO (jon) deprecate this
+      // creates AvroEventSource or ThriftEventSource
+      { "rpcSource", RpcSource.builder() },
+      { "thriftsource", ThriftEventSource.builder() },
+      { "avrosource", AvroEventSource.builder() },
       { "tSource", ThriftEventSource.builder() },
       { "text", TextFileSource.builder() }, { "tail", TailSource.builder() },
       { "multitail", TailSource.multiTailBuilder() },

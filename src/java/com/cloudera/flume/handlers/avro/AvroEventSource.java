@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.log4j.Logger;
 import com.cloudera.flume.conf.FlumeConfiguration;
+import com.cloudera.flume.conf.SourceFactory.SourceBuilder;
 import com.cloudera.flume.core.Event;
 import com.cloudera.flume.core.EventSource;
 import com.cloudera.flume.reporter.ReportEvent;
@@ -207,5 +208,16 @@ public class AvroEventSource extends EventSource.Base {
       throw new IOException("Waiting for queue element was interupted! "
           + e.getMessage(), e);
     }
+  }
+
+  public static SourceBuilder builder() {
+    return new SourceBuilder() {
+      @Override
+      public EventSource build(String... argv) {
+        Preconditions.checkArgument(argv.length == 1, "usage: Source(port)");
+        int port = Integer.parseInt(argv[0]);
+        return new AvroEventSource(port);
+      }
+    };
   }
 }

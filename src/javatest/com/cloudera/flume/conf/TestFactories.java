@@ -31,6 +31,10 @@ import com.cloudera.flume.core.EventSinkDecorator;
 import com.cloudera.flume.core.EventSource;
 import com.cloudera.flume.core.EventUtil;
 import com.cloudera.flume.core.connector.DirectDriver;
+import com.cloudera.flume.handlers.avro.AvroEventSink;
+import com.cloudera.flume.handlers.avro.AvroEventSource;
+import com.cloudera.flume.handlers.thrift.ThriftEventSink;
+import com.cloudera.flume.handlers.thrift.ThriftEventSource;
 import com.cloudera.flume.reporter.aggregator.CounterSink;
 
 /**
@@ -100,7 +104,39 @@ public class TestFactories implements ExampleData {
   }
 
   /**
-   * This tests RpcSnk/Source for both Avro and Thrift type/
+   * This tests that right type (Avro/Thrift) source sink is created based on
+   * the value of EVENT_RPC_TYPE set in Configuration file.
+   */
+  @Test
+  public void testRpcSourceSinksInit() throws FlumeSpecException {
+    FlumeConfiguration.get().set(FlumeConfiguration.EVENT_RPC_TYPE, "garbage");
+
+    // making sure default is Thrift
+    EventSource rpcSrc = srcfact.getSource("rpcSource", "31337");
+    EventSink rpcSink = fact.getSink(new Context(), "rpcSink", "0.0.0.0",
+        "31337");
+    assertEquals(ThriftEventSource.class, rpcSrc.getClass());
+    assertEquals(ThriftEventSink.class, rpcSink.getClass());
+
+    // make sure initializing to Thrift indeed gives us ThriftEvent sources and
+    // sinks.
+    FlumeConfiguration.get().set(FlumeConfiguration.EVENT_RPC_TYPE, "THRIFT");
+    rpcSrc = srcfact.getSource("rpcSource", "31337");
+    rpcSink = fact.getSink(new Context(), "rpcSink", "0.0.0.0", "31337");
+    assertEquals(ThriftEventSource.class, rpcSrc.getClass());
+    assertEquals(ThriftEventSink.class, rpcSink.getClass());
+
+    // make sure initializing to Avro indeed gives us AvroEvent sources and
+    // sinks.
+    FlumeConfiguration.get().set(FlumeConfiguration.EVENT_RPC_TYPE, "AVRO");
+    rpcSrc = srcfact.getSource("rpcSource", "31337");
+    rpcSink = fact.getSink(new Context(), "rpcSink", "0.0.0.0", "31337");
+    assertEquals(AvroEventSource.class, rpcSrc.getClass());
+    assertEquals(AvroEventSink.class, rpcSink.getClass());
+  }
+
+  /**
+   * This tests RpcSnk/Source for both Avro and Thrift type.
    */
   @Test
   public void testRpcSourceSinks() throws IOException, InterruptedException,
