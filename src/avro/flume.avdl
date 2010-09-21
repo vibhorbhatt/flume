@@ -23,8 +23,6 @@ protocol FlumeEventAvroServer{
  enum Priority { FATAL, ERROR, WARN,
     INFO, DEBUG, TRACE}
 
-enum EventStatus { ACK, COMMITED, ERR}
-
 record AvroFlumeEvent {
   long timestamp;
   Priority priority;

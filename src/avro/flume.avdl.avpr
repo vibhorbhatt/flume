@@ -6,10 +6,6 @@
     "name" : "Priority",
     "symbols" : [ "FATAL", "ERROR", "WARN", "INFO", "DEBUG", "TRACE" ]
   }, {
-    "type" : "enum",
-    "name" : "EventStatus",
-    "symbols" : [ "ACK", "COMMITED", "ERR" ]
-  }, {
     "type" : "record",
     "name" : "AvroFlumeEvent",
     "fields" : [ {

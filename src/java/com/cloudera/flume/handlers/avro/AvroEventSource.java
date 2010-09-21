@@ -174,6 +174,7 @@ public class AvroEventSource extends EventSource.Base {
       } catch (InterruptedException e) {
         LOG.error("Unexpected interrupt of close " + e.getMessage(), e);
         Thread.currentThread().interrupt();
+        closed=true;
         throw new IOException(e);
       }
     }
@@ -215,7 +216,8 @@ public class AvroEventSource extends EventSource.Base {
     return new SourceBuilder() {
       @Override
       public EventSource build(String... argv) {
-        Preconditions.checkArgument(argv.length == 1, "usage: Source(port)");
+        Preconditions
+            .checkArgument(argv.length == 1, "usage: avroSource(port)");
         int port = Integer.parseInt(argv[0]);
         return new AvroEventSource(port);
       }

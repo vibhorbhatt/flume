@@ -74,8 +74,8 @@ public class SourceFactoryImpl extends SourceFactory {
       { "console", StdinSource.builder() },
       // creates AvroEventSource or ThriftEventSource
       { "rpcSource", RpcSource.builder() },
-      { "thriftsource", ThriftEventSource.builder() },
-      { "avrosource", AvroEventSource.builder() },
+      { "thriftSource", ThriftEventSource.builder() },
+      { "avroSource", AvroEventSource.builder() },
       { "tSource", ThriftEventSource.builder() },
       { "text", TextFileSource.builder() }, { "tail", TailSource.builder() },
       { "multitail", TailSource.multiTailBuilder() },

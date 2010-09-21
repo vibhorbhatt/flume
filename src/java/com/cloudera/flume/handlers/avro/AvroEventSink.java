@@ -113,9 +113,7 @@ public class AvroEventSink extends EventSink.Base {
       transport.close();
       transport = null;
       LOG.info("AvroEventSink on port " + port + " closed");
-    }
-    else
-    {
+    } else {
       LOG.warn("Trying to close AvroEventSink, which was closed already");
     }
   }
@@ -138,7 +136,7 @@ public class AvroEventSink extends EventSink.Base {
       public EventSink build(Context context, String... args) {
         if (args.length > 2) {
           throw new IllegalArgumentException(
-              "usage: thrift([hostname, [portno]]) ");
+              "usage: avroSink([hostname, [portno]]) ");
         }
         String host = FlumeConfiguration.get().getCollectorHost();
         int port = FlumeConfiguration.get().getCollectorPort();

@@ -41,7 +41,8 @@ import com.cloudera.util.Clock;
 import com.google.common.base.Preconditions;
 
 /**
- * This sets up the port that listens for incoming flume event rpc calls using Thrift.
+ * This sets up the port that listens for incoming flume event rpc calls using
+ * Thrift.
  */
 public class ThriftEventSource extends EventSource.Base {
   final static int DEFAULT_QUEUE_SIZE = FlumeConfiguration.get()
@@ -183,6 +184,9 @@ public class ThriftEventSource extends EventSource.Base {
         Thread.sleep(100);
       } catch (InterruptedException e) {
         LOG.error("Unexpected interrupt of close " + e.getMessage(), e);
+        Thread.currentThread().interrupt();
+        closed = true;
+        throw new IOException(e);
       }
     }
 
@@ -223,7 +227,8 @@ public class ThriftEventSource extends EventSource.Base {
     return new SourceBuilder() {
       @Override
       public EventSource build(String... argv) {
-        Preconditions.checkArgument(argv.length == 1, "usage: thriftSource(port)");
+        Preconditions.checkArgument(argv.length == 1,
+            "usage: thriftSource(port)");
 
         int port = Integer.parseInt(argv[0]);
 
