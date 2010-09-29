@@ -116,6 +116,10 @@ milliseconds. +execStream("foo")+ is equivalent to +exec("foo", false, false,
 +_msgCount_+ random messages of size +_msgSize_+.  This will generate non 
 printable characters.
 
++synthrndsize(_msgCount_,_minSize_,_maxSize_)+ :: A source that synthetically 
+generates +_msgCount_+ random messages of size between randomly _minSize_ and _maxSize_.
+This will generate non printable characters.
+
 +nonlsynth(_msgCount_,_msgSize_)+:: A source that synthetically generates 
 +_msgCount_+ random messages of size +_msgSize_+.  This converts all `'\n'` 
 chars into `' '` chars.  This will generate non-printable characters but since 
