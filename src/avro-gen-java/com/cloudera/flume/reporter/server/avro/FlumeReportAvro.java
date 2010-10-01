@@ -3,11 +3,11 @@
  * 
  * DO NOT EDIT DIRECTLY
  */
-package com.cloudera.flume.conf.avro;
+package com.cloudera.flume.reporter.server.avro;
 
 @SuppressWarnings("all")
 public class FlumeReportAvro extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = org.apache.avro.Schema.parse("{\"type\":\"record\",\"name\":\"FlumeReportAvro\",\"namespace\":\"com.cloudera.flume.conf.avro\",\"fields\":[{\"name\":\"stringMetrics\",\"type\":{\"type\":\"map\",\"values\":\"string\"}},{\"name\":\"longMetrics\",\"type\":{\"type\":\"map\",\"values\":\"long\"}},{\"name\":\"doubleMetrics\",\"type\":{\"type\":\"map\",\"values\":\"double\"}}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = org.apache.avro.Schema.parse("{\"type\":\"record\",\"name\":\"FlumeReportAvro\",\"namespace\":\"com.cloudera.flume.reporter.server.avro\",\"fields\":[{\"name\":\"stringMetrics\",\"type\":{\"type\":\"map\",\"values\":\"string\"}},{\"name\":\"longMetrics\",\"type\":{\"type\":\"map\",\"values\":\"long\"}},{\"name\":\"doubleMetrics\",\"type\":{\"type\":\"map\",\"values\":\"double\"}}]}");
   public java.util.Map<java.lang.CharSequence,java.lang.CharSequence> stringMetrics;
   public java.util.Map<java.lang.CharSequence,java.lang.Long> longMetrics;
   public java.util.Map<java.lang.CharSequence,java.lang.Double> doubleMetrics;
