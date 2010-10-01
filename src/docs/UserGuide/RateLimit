@@ -22,18 +22,15 @@ WARNING: This feature is only available when using memory-backed store and not t
 Flume has the ability to limit the rate of transfer of data between source-sink pairs.  
 This is useful to divide the network bandwidth non-uniformly among different 
 source-sink pairs based on the kind of logs they are transferring.  
-May be we want some types of logs to be shipped at a faster rate that others, 
-may be we want to transfer logs at different rate at different times of the day.
+Maybe you want some types of logs to be shipped at a faster rate that others, maybe you want to transfer logs at different rate at different times of the day.
 
 
-Another situation where it is good to limit the rate of data transfer is when the 
-network (or a collector) starts functioning again after a failure; in this case 
-the agents might have lot of data backed up to ship, so if we don't limit the transfer rate 
-they can exhaust all the resources of the collector and make it even crash.  
+Another situation where it is good to limit the rate of data transfer is when the network (or a collector) recovers after a failure.  
+In this case the agents might have lot of data backed up to ship, so if there is no limit on the transfer rate, 
+the agents can exhaust all the resources of the collector and make it even crash.  
 
 
-In Flume a special sink-decorator called the +choke+ decorator can be used to limit 
-the rate of transfer of data between source-sink pairs.
+In Flume a special sink-decorator called the +choke+ decorator can be used to limit the rate of transfer of data between source-sink pairs.
 Each +choke+ decorator (simply called a +choke+) has to be assigned to a +choke-id+.  
 Here is an example that uses a +choke+ with +choke-id+ "Cid" between a source and sink of a node.
 ----
@@ -51,10 +48,8 @@ exec setChokeLimit host Cid 1000
 
 NOTE: setChokeLimit can also be used to change the limit associated to a +choke-id+ at the run-time. 
 
-The limit set on the +choke-id+ "Cid" puts the limit on the rate at which the +chokes+ using +choke-id+ 
-"Cid" can collectively transfer data.  
-In the example above there is only one source-sink pair on the physical node +host+ 
-that uses a +choke+ with +choke-id+ "Cid", so the rate of data transfer between that source-sink pair is limited to 1000 KB/sec. 
+The limit set on the +choke-id+ puts an upper bound on the rate at which the +chokes+ using that +choke-id+ can collectively transfer data.  
+In the example above there is only one source-sink pair on the physical node +host+ that uses a +choke+ with +choke-id+ "Cid", so the rate of data transfer between that source-sink pair is limited to 1000 KB/sec. 
 
 NOTE: For the purpose of rate limiting only the size of the event body is taken into account. 
 
@@ -72,8 +67,7 @@ and a +choke-id+ "Cid" with limit 1000KB/sec is registered on +host+.
 node1: source1 | { choke("Cid") => sink1 };
 node2: source2 | { choke("Cid") => sink2 };
 ----
-In the above example as both +source1-sink1+ and +source2-sink2+ pairs use +chokes+ having the same +choke-id+ "Cid",
- the total data going across these source-sink pairs collectively will be limited by 1000KB/sec. 
+In the above example as both +source1-sink1+ and +source2-sink2+ pairs are using +chokes+ with the same +choke-id+ "Cid", the total data going across these source-sink pairs collectively will be limited by 1000KB/sec. 
 Flume does not guarantee in any way how this limit will be divided between the source-sink pairs, 
 but it does guarantee that neither source-sink pair will starve.
 
