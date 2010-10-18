@@ -27,9 +27,9 @@ public class ThriftFlumeReportServer {
 
   public interface Iface {
 
-    public Map<String,FlumeReportThrift> getAllReports() throws TException;
+    public Map<String,ThriftFlumeReport> getAllReports() throws TException;
 
-    public FlumeReportThrift getReportByName(String reportName) throws TException;
+    public ThriftFlumeReport getReportByName(String reportName) throws TException;
 
   }
 
@@ -60,7 +60,7 @@ public class ThriftFlumeReportServer {
       return this.oprot_;
     }
 
-    public Map<String,FlumeReportThrift> getAllReports() throws TException
+    public Map<String,ThriftFlumeReport> getAllReports() throws TException
     {
       send_getAllReports();
       return recv_getAllReports();
@@ -75,7 +75,7 @@ public class ThriftFlumeReportServer {
       oprot_.getTransport().flush();
     }
 
-    public Map<String,FlumeReportThrift> recv_getAllReports() throws TException
+    public Map<String,ThriftFlumeReport> recv_getAllReports() throws TException
     {
       TMessage msg = iprot_.readMessageBegin();
       if (msg.type == TMessageType.EXCEPTION) {
@@ -92,7 +92,7 @@ public class ThriftFlumeReportServer {
       throw new TApplicationException(TApplicationException.MISSING_RESULT, "getAllReports failed: unknown result");
     }
 
-    public FlumeReportThrift getReportByName(String reportName) throws TException
+    public ThriftFlumeReport getReportByName(String reportName) throws TException
     {
       send_getReportByName(reportName);
       return recv_getReportByName();
@@ -108,7 +108,7 @@ public class ThriftFlumeReportServer {
       oprot_.getTransport().flush();
     }
 
-    public FlumeReportThrift recv_getReportByName() throws TException
+    public ThriftFlumeReport recv_getReportByName() throws TException
     {
       TMessage msg = iprot_.readMessageBegin();
       if (msg.type == TMessageType.EXCEPTION) {
@@ -392,7 +392,7 @@ public class ThriftFlumeReportServer {
 
     private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.MAP, (short)0);
 
-    public Map<String,FlumeReportThrift> success;
+    public Map<String,ThriftFlumeReport> success;
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements TFieldIdEnum {
@@ -455,7 +455,7 @@ public class ThriftFlumeReportServer {
       put(_Fields.SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT, 
           new MapMetaData(TType.MAP, 
               new FieldValueMetaData(TType.STRING), 
-              new StructMetaData(TType.STRUCT, FlumeReportThrift.class))));
+              new StructMetaData(TType.STRUCT, ThriftFlumeReport.class))));
     }});
 
     static {
@@ -466,7 +466,7 @@ public class ThriftFlumeReportServer {
     }
 
     public getAllReports_result(
-      Map<String,FlumeReportThrift> success)
+      Map<String,ThriftFlumeReport> success)
     {
       this();
       this.success = success;
@@ -477,15 +477,15 @@ public class ThriftFlumeReportServer {
      */
     public getAllReports_result(getAllReports_result other) {
       if (other.isSetSuccess()) {
-        Map<String,FlumeReportThrift> __this__success = new HashMap<String,FlumeReportThrift>();
-        for (Map.Entry<String, FlumeReportThrift> other_element : other.success.entrySet()) {
+        Map<String,ThriftFlumeReport> __this__success = new HashMap<String,ThriftFlumeReport>();
+        for (Map.Entry<String, ThriftFlumeReport> other_element : other.success.entrySet()) {
 
           String other_element_key = other_element.getKey();
-          FlumeReportThrift other_element_value = other_element.getValue();
+          ThriftFlumeReport other_element_value = other_element.getValue();
 
           String __this__success_copy_key = other_element_key;
 
-          FlumeReportThrift __this__success_copy_value = new FlumeReportThrift(other_element_value);
+          ThriftFlumeReport __this__success_copy_value = new ThriftFlumeReport(other_element_value);
 
           __this__success.put(__this__success_copy_key, __this__success_copy_value);
         }
@@ -506,18 +506,18 @@ public class ThriftFlumeReportServer {
       return (this.success == null) ? 0 : this.success.size();
     }
 
-    public void putToSuccess(String key, FlumeReportThrift val) {
+    public void putToSuccess(String key, ThriftFlumeReport val) {
       if (this.success == null) {
-        this.success = new HashMap<String,FlumeReportThrift>();
+        this.success = new HashMap<String,ThriftFlumeReport>();
       }
       this.success.put(key, val);
     }
 
-    public Map<String,FlumeReportThrift> getSuccess() {
+    public Map<String,ThriftFlumeReport> getSuccess() {
       return this.success;
     }
 
-    public getAllReports_result setSuccess(Map<String,FlumeReportThrift> success) {
+    public getAllReports_result setSuccess(Map<String,ThriftFlumeReport> success) {
       this.success = success;
       return this;
     }
@@ -543,7 +543,7 @@ public class ThriftFlumeReportServer {
         if (value == null) {
           unsetSuccess();
         } else {
-          setSuccess((Map<String,FlumeReportThrift>)value);
+          setSuccess((Map<String,ThriftFlumeReport>)value);
         }
         break;
 
@@ -628,13 +628,13 @@ public class ThriftFlumeReportServer {
               if (field.type == TType.MAP) {
                 {
                   TMap _map15 = iprot.readMapBegin();
-                  this.success = new HashMap<String,FlumeReportThrift>(2*_map15.size);
+                  this.success = new HashMap<String,ThriftFlumeReport>(2*_map15.size);
                   for (int _i16 = 0; _i16 < _map15.size; ++_i16)
                   {
                     String _key17;
-                    FlumeReportThrift _val18;
+                    ThriftFlumeReport _val18;
                     _key17 = iprot.readString();
-                    _val18 = new FlumeReportThrift();
+                    _val18 = new ThriftFlumeReport();
                     _val18.read(iprot);
                     this.success.put(_key17, _val18);
                   }
@@ -661,7 +661,7 @@ public class ThriftFlumeReportServer {
         oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
         {
           oprot.writeMapBegin(new TMap(TType.STRING, TType.STRUCT, this.success.size()));
-          for (Map.Entry<String, FlumeReportThrift> _iter19 : this.success.entrySet())
+          for (Map.Entry<String, ThriftFlumeReport> _iter19 : this.success.entrySet())
           {
             oprot.writeString(_iter19.getKey());
             _iter19.getValue().write(oprot);
@@ -984,7 +984,7 @@ public class ThriftFlumeReportServer {
 
     private static final TField SUCCESS_FIELD_DESC = new TField("success", TType.STRUCT, (short)0);
 
-    public FlumeReportThrift success;
+    public ThriftFlumeReport success;
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements TFieldIdEnum {
@@ -1045,7 +1045,7 @@ public class ThriftFlumeReportServer {
 
     public static final Map<_Fields, FieldMetaData> metaDataMap = Collections.unmodifiableMap(new EnumMap<_Fields, FieldMetaData>(_Fields.class) {{
       put(_Fields.SUCCESS, new FieldMetaData("success", TFieldRequirementType.DEFAULT, 
-          new StructMetaData(TType.STRUCT, FlumeReportThrift.class)));
+          new StructMetaData(TType.STRUCT, ThriftFlumeReport.class)));
     }});
 
     static {
@@ -1056,7 +1056,7 @@ public class ThriftFlumeReportServer {
     }
 
     public getReportByName_result(
-      FlumeReportThrift success)
+      ThriftFlumeReport success)
     {
       this();
       this.success = success;
@@ -1067,7 +1067,7 @@ public class ThriftFlumeReportServer {
      */
     public getReportByName_result(getReportByName_result other) {
       if (other.isSetSuccess()) {
-        this.success = new FlumeReportThrift(other.success);
+        this.success = new ThriftFlumeReport(other.success);
       }
     }
 
@@ -1080,11 +1080,11 @@ public class ThriftFlumeReportServer {
       return new getReportByName_result(this);
     }
 
-    public FlumeReportThrift getSuccess() {
+    public ThriftFlumeReport getSuccess() {
       return this.success;
     }
 
-    public getReportByName_result setSuccess(FlumeReportThrift success) {
+    public getReportByName_result setSuccess(ThriftFlumeReport success) {
       this.success = success;
       return this;
     }
@@ -1110,7 +1110,7 @@ public class ThriftFlumeReportServer {
         if (value == null) {
           unsetSuccess();
         } else {
-          setSuccess((FlumeReportThrift)value);
+          setSuccess((ThriftFlumeReport)value);
         }
         break;
 
@@ -1193,7 +1193,7 @@ public class ThriftFlumeReportServer {
           switch (fieldId) {
             case SUCCESS:
               if (field.type == TType.STRUCT) {
-                this.success = new FlumeReportThrift();
+                this.success = new ThriftFlumeReport();
                 this.success.read(iprot);
               } else { 
                 TProtocolUtil.skip(iprot, field.type);

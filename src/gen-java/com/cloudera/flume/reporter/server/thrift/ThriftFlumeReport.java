@@ -23,8 +23,8 @@ import org.apache.thrift.*;
 import org.apache.thrift.meta_data.*;
 import org.apache.thrift.protocol.*;
 
-public class FlumeReportThrift implements TBase<FlumeReportThrift._Fields>, java.io.Serializable, Cloneable {
-  private static final TStruct STRUCT_DESC = new TStruct("FlumeReportThrift");
+public class ThriftFlumeReport implements TBase<ThriftFlumeReport._Fields>, java.io.Serializable, Cloneable {
+  private static final TStruct STRUCT_DESC = new TStruct("ThriftFlumeReport");
 
   private static final TField STRING_METRICS_FIELD_DESC = new TField("stringMetrics", TType.MAP, (short)3);
   private static final TField LONG_METRICS_FIELD_DESC = new TField("longMetrics", TType.MAP, (short)4);
@@ -109,13 +109,13 @@ public class FlumeReportThrift implements TBase<FlumeReportThrift._Fields>, java
   }});
 
   static {
-    FieldMetaData.addStructMetaDataMap(FlumeReportThrift.class, metaDataMap);
+    FieldMetaData.addStructMetaDataMap(ThriftFlumeReport.class, metaDataMap);
   }
 
-  public FlumeReportThrift() {
+  public ThriftFlumeReport() {
   }
 
-  public FlumeReportThrift(
+  public ThriftFlumeReport(
     Map<String,String> stringMetrics,
     Map<String,Long> longMetrics,
     Map<String,Double> doubleMetrics)
@@ -129,7 +129,7 @@ public class FlumeReportThrift implements TBase<FlumeReportThrift._Fields>, java
   /**
    * Performs a deep copy on <i>other</i>.
    */
-  public FlumeReportThrift(FlumeReportThrift other) {
+  public ThriftFlumeReport(ThriftFlumeReport other) {
     if (other.isSetStringMetrics()) {
       Map<String,String> __this__stringMetrics = new HashMap<String,String>();
       for (Map.Entry<String, String> other_element : other.stringMetrics.entrySet()) {
@@ -177,13 +177,13 @@ public class FlumeReportThrift implements TBase<FlumeReportThrift._Fields>, java
     }
   }
 
-  public FlumeReportThrift deepCopy() {
-    return new FlumeReportThrift(this);
+  public ThriftFlumeReport deepCopy() {
+    return new ThriftFlumeReport(this);
   }
 
   @Deprecated
-  public FlumeReportThrift clone() {
-    return new FlumeReportThrift(this);
+  public ThriftFlumeReport clone() {
+    return new ThriftFlumeReport(this);
   }
 
   public int getStringMetricsSize() {
@@ -201,7 +201,7 @@ public class FlumeReportThrift implements TBase<FlumeReportThrift._Fields>, java
     return this.stringMetrics;
   }
 
-  public FlumeReportThrift setStringMetrics(Map<String,String> stringMetrics) {
+  public ThriftFlumeReport setStringMetrics(Map<String,String> stringMetrics) {
     this.stringMetrics = stringMetrics;
     return this;
   }
@@ -236,7 +236,7 @@ public class FlumeReportThrift implements TBase<FlumeReportThrift._Fields>, java
     return this.longMetrics;
   }
 
-  public FlumeReportThrift setLongMetrics(Map<String,Long> longMetrics) {
+  public ThriftFlumeReport setLongMetrics(Map<String,Long> longMetrics) {
     this.longMetrics = longMetrics;
     return this;
   }
@@ -271,7 +271,7 @@ public class FlumeReportThrift implements TBase<FlumeReportThrift._Fields>, java
     return this.doubleMetrics;
   }
 
-  public FlumeReportThrift setDoubleMetrics(Map<String,Double> doubleMetrics) {
+  public ThriftFlumeReport setDoubleMetrics(Map<String,Double> doubleMetrics) {
     this.doubleMetrics = doubleMetrics;
     return this;
   }
@@ -364,12 +364,12 @@ public class FlumeReportThrift implements TBase<FlumeReportThrift._Fields>, java
   public boolean equals(Object that) {
     if (that == null)
       return false;
-    if (that instanceof FlumeReportThrift)
-      return this.equals((FlumeReportThrift)that);
+    if (that instanceof ThriftFlumeReport)
+      return this.equals((ThriftFlumeReport)that);
     return false;
   }
 
-  public boolean equals(FlumeReportThrift that) {
+  public boolean equals(ThriftFlumeReport that) {
     if (that == null)
       return false;
 
@@ -538,7 +538,7 @@ public class FlumeReportThrift implements TBase<FlumeReportThrift._Fields>, java
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("FlumeReportThrift(");
+    StringBuilder sb = new StringBuilder("ThriftFlumeReport(");
     boolean first = true;
 
     sb.append("stringMetrics:");
