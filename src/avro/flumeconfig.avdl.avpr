@@ -72,6 +72,19 @@
         }
       }
     } ]
+  }, {
+    "type" : "record",
+    "name" : "AvroFlumeChokeMap",
+    "fields" : [ {
+      "name" : "chokemap",
+      "type" : {
+        "type" : "map",
+        "values" : {
+          "type" : "map",
+          "values" : "int"
+        }
+      }
+    } ]
   } ],
   "messages" : {
     "heartbeat" : {
